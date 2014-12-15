@@ -1,5 +1,4 @@
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
   <script>
@@ -35,7 +34,7 @@
 <template name="searchResult">
   <div class="panel panel-default">
     <div class="panel-heading">
-      {{{_highlightResult.name.value}}}
+      <a href="https://atmospherejs.com/{{#if authorName}}{{authorName}}{{else}}meteor{{/if}}/{{baseName}}" target="_blank">{{{_highlightResult.name.value}}}</a>
       <span class="pull-right">
         {{#if starCount}}
           {{starCount}} <i class="mdi-action-grade"></i>
@@ -43,7 +42,6 @@
         {{#if latestVersion.git}}
           <a href="{{latestVersion.git}}" target="_blank">GitHub</a>
         {{/if}}
-        <a href="https://atmospherejs.com/{{#if authorName}}{{authorName}}{{else}}meteor{{/if}}/{{baseName}}" target="_blank">Atmosphere</a>
       </span>
     </div>
     <div class="panel-body">
@@ -79,7 +77,8 @@
   <div class="container text-muted text-center well footer">
     <div class="row">
       <div class="col-sm-offset-1 col-sm-10 col-xs-12">
-        Developed by <a href="http://ploki/info">Vianney Lecroart</a> and <a href="https://github.com/peernohell">François Lecroart</a> with Meteor and Algolia.
+        <p>Developed by <a href="http://ploki/info">Vianney Lecroart</a> and <a href="https://github.com/peernohell">François Lecroart</a> with Meteor and Algolia.</p>
+        <p>This is a free software project, get the <a href="https://github.com/acemtp/meteor-fastosphere">source code</a>.</p>
       </div>
     </div>
   </div>
