@@ -6,6 +6,20 @@ If you want to use it, please change analytics ID with yours in `<head>` part of
 
 ## Command line
 
+Why creating a command line for searching package since there's already `meteor search`? If you really want to know, just do this test: 
+
+- meteor search bootstrap
+- npm -g install fastosphere
+- fastosphere bootstrap
+
+Which one do you prefer?
+
+You can also test:
+
+- fastosphere boot      # lazy
+- fastosphere b         # really lazy
+- fastosphere bootsrap  # dyslexic
+
 ### Installation
 
     npm -g install fastosphere
