@@ -7,15 +7,30 @@ var moment = require('moment');
 var Algolia = require('algolia-search');
 
 program
-  .version('1.0.0')
+  .version('1.0.2')
+  .usage('[options] <search ...>')
+  .description('Blazing fast Meteor packages search cli powered by Algolia.')
   .option('-g, --github', 'display GitHub url')
-  .option('-n, --nbhits <n>', 'number of results (default: 10)', parseInt, 10)
-  .option('-l, --long', 'list in long format')
-  .parse(process.argv);
+  .option('-n, --nbhits <n>', 'number of results (default: 10)', parseInt)
+  .option('-l, --long', 'list in long format');
+
+program.on('--help', function () {
+  console.log('  Examples:');
+  console.log('');
+  console.log('    $ fastosphere acemtp -g   # Display GitHub link (⌘  + click on it to open the url)');
+  console.log('    $ fastosphere acemtp -l   # Display in long format');
+  console.log('    $ fastosphere boot -n 20  # Display 20 results');
+  console.log('');
+});
+
+program.parse(process.argv);
+
 
 var client = new Algolia('10L80F1AT7', 'b72cb5333cc8de90e7217eee27c48c63');
 
 var index = client.initIndex('Packages');
+
+var nbhits = program.nbhits || 10;
 
 index.search(program.args || '', function (error, content) {
 
@@ -48,4 +63,4 @@ index.search(program.args || '', function (error, content) {
 
   console.log(table(hits));
 
-}, { hitsPerPage: program.nbhits });
+}, { hitsPerPage: nbhits });
