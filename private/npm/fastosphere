@@ -1,0 +1,51 @@
+#!/usr/bin/env node
+
+var table = require('text-table');
+var program = require('commander');
+var moment = require('moment');
+
+var Algolia = require('algolia-search');
+
+program
+  .version('1.0.0')
+  .option('-g, --github', 'display GitHub url')
+  .option('-n, --nbhits <n>', 'number of results (default: 10)', parseInt, 10)
+  .option('-l, --long', 'list in long format')
+  .parse(process.argv);
+
+var client = new Algolia('10L80F1AT7', 'b72cb5333cc8de90e7217eee27c48c63');
+
+var index = client.initIndex('Packages');
+
+index.search(program.args || '', function (error, content) {
+
+  if(error) return console.error('Error:', content.message);
+
+//  console.log(content.hits);
+  var hits = [];
+  content.hits.forEach(function (h) {
+    var a = [];
+
+    a.push(h.starCount ? h.starCount + '★' : '');
+
+    a.push(h.name);
+
+    if(program.long) a.push(h.latestVersion.version || '');
+
+    if(program.long) a.push(moment(h.latestVersion.published).fromNow());
+
+    var desc = h.latestVersion.description;
+    var width = program.github ? 50 : 80;
+    if (desc.length > width) {
+      desc = desc.substr(0, width - 3) + '...';
+    }
+    a.push(desc);
+
+    if(program.github) a.push(h.latestVersion.git || '');
+
+  	hits.push(a);
+  });
+
+  console.log(table(hits));
+
+}, { hitsPerPage: program.nbhits });

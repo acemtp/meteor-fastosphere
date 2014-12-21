@@ -1,0 +1,20 @@
+{
+  "name": "fastosphere",
+  "version": "1.0.0",
+  "description": "Blazing fast Meteor packages search cli powered by Algolia.",
+  "dependencies": {
+    "algolia-search": "1.7.x",
+    "commander": "2.5.x",
+    "moment": "2.8.x",
+    "text-table": "0.2.x"
+  },
+  "bin": {
+    "fastosphere": "./fastosphere"
+  },
+  "author": "Vianney Lecroart <acemtp@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/acemtp/meteor-fastosphere.git"
+  },
+  "license": "MIT"
+}
