@@ -6,6 +6,7 @@
     "algolia-search": "1.7.x",
     "commander": "2.5.x",
     "moment": "2.8.x",
+    "request": "^2.51.0",
     "text-table": "0.2.x"
   },
   "bin": {

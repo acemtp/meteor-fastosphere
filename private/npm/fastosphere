@@ -3,6 +3,9 @@
 var table = require('text-table');
 var program = require('commander');
 var moment = require('moment');
+var fs = require('fs');
+var path = require('path');
+var request = require('request');
 
 var Algolia = require('algolia-search');
 
@@ -26,41 +29,68 @@ program.on('--help', function () {
 program.parse(process.argv);
 
 
-var client = new Algolia('10L80F1AT7', 'b72cb5333cc8de90e7217eee27c48c63');
 
-var index = client.initIndex('Packages');
+if (program.args.length) {
+  var client = new Algolia('10L80F1AT7', 'b72cb5333cc8de90e7217eee27c48c63');
 
-var nbhits = program.nbhits || 10;
+  var index = client.initIndex('Packages');
 
-index.search(program.args || '', function (error, content) {
+  var nbhits = program.nbhits || 10;
 
-  if(error) return console.error('Error:', content.message);
+  index.search(program.args, function (error, content) {
 
-//  console.log(content.hits);
-  var hits = [];
-  content.hits.forEach(function (h) {
-    var a = [];
+    if(error) return console.error('Error:', content.message);
 
-    a.push(h.starCount ? h.starCount + '★' : '');
+  //  console.log(content.hits);
+    var hits = [];
+    content.hits.forEach(function (h) {
+      var a = [];
 
-    a.push(h.name);
+      a.push(h.starCount ? h.starCount + '★' : '');
 
-    if(program.long) a.push(h.latestVersion.version || '');
+      a.push(h.name);
 
-    if(program.long) a.push(moment(h.latestVersion.published).fromNow());
+      if(program.long) a.push(h.latestVersion.version || '');
 
-    var desc = h.latestVersion.description;
-    var width = program.github ? 50 : 80;
-    if (desc.length > width) {
-      desc = desc.substr(0, width - 3) + '...';
+      if(program.long) a.push(moment(h.latestVersion.published).fromNow());
+
+      var desc = h.latestVersion.description;
+      var width = program.github ? 50 : 80;
+      if (desc.length > width) {
+        desc = desc.substr(0, width - 3) + '...';
+      }
+      a.push(desc);
+
+      if(program.github) a.push(h.latestVersion.git || '');
+
+      hits.push(a);
+    });
+
+    console.log(table(hits));
+
+  }, { hitsPerPage: nbhits });
+
+} else {
+  // look for a .meteor/version
+  try {
+    var versions = fs.readFileSync(path.join('.meteor', 'versions'), {encoding: 'ascii'});
+    var packages = fs.readFileSync(path.join('.meteor', 'packages'), {encoding: 'ascii'});
+
+  } catch (e) {
+    console.error(e);
+  }
+  // send file to server.
+  request.post({
+    url: 'http://localhost:3000/api/changelog',
+    json: {
+      versions: versions,
+      packages: packages
     }
-    a.push(desc);
-
-    if(program.github) a.push(h.latestVersion.git || '');
-
-  	hits.push(a);
+  }, function(err,httpResponse,body){
+    if (err) {
+      return console.error('error:', err);
+    }
+    console.log(body);
   });
 
-  console.log(table(hits));
-
-}, { hitsPerPage: nbhits });
+}
