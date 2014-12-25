@@ -28,7 +28,7 @@ Router.route('/api/changelog', { where: 'server' })
       }
   	});
 
-    console.log('tok', tokens);
+//    console.log('tok', tokens);
 
 //console.log('str', str);
     this.response.end(JSON.stringify(tokens));

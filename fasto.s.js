@@ -1,3 +1,15 @@
+var semverClean = function (ver) {
+  var re = /(\d+\.\d+(?:\.\d+)?)/gm; 
+  var m = re.exec(ver);
+  var semver;
+  if(m) {
+    console.log('m', m);
+    semver = m[0];
+    if(semver.split('.').length === 2) semver += '.0';
+  }
+  return semver;
+};
+
 
 changelog = function (packageName, currentVersion) {
   var p = Packages.findOne({ 'atmo.name': packageName });
@@ -5,21 +17,35 @@ changelog = function (packageName, currentVersion) {
   if (!p.changelog) { console.log('Package without changelog', packageName); return undefined; }
 
   var tokens = marked.lexer(p.changelog, { gfm: true });
+
 //  console.log('****************************');
 //  console.log(tokens);
 //  console.log('****************************');
 
+  var semver = Meteor.npmRequire('semver');
+
   for(var i = 0; i < tokens.length; i++) {
     var t = tokens[i];
-    if(t.type === 'heading' && t.text.indexOf(currentVersion) !== -1) {
-//      console.log('found', t);
-      break;
+//    console.log('token', t);
+//    if(t.type === 'heading' && t.text.indexOf(currentVersion) !== -1) {
+    if(t.type === 'heading') {
+      var ver = semverClean(t.text);
+      currentVersion = semverClean(currentVersion);
+
+      console.log('eee', t.text, ver, currentVersion, semver.valid(ver), semver.valid(currentVersion));
+
+      if(ver && currentVersion && semver.lte(ver, currentVersion)) {
+        console.log('found', t);
+        break;
+      }
     }
   }
 
-  if(i === tokens.length) { console.log('Version not found in changelog', packageName); return undefined; }
+  if(i === 0 || i === tokens.length) { console.log('Version not found in changelog', packageName); return undefined; }
 
   var subtokens = tokens.slice(0, i);
+
+console.log('subt', i, tokens.length, subtokens);
 
 //  subtokens.links = tokens.links;
 //  console.log('__-****************************');
@@ -127,13 +153,14 @@ var updatePackages = function() {
 };
 
 Meteor.startup(function () {
-  getPackages();
+//  getPackages();
 //  updatePackages();
 
   var m = Packages.findOne({ name: 'METEOR' });
-  if(!m) Packages.insert({ name: 'METEOR', atmo: { name: 'METEOR', latestVersion: { git: 'https://github.com/meteor/meteor' } } });
-
-  updatePackage(Packages.findOne({ name: 'METEOR' }));
+  if(!m) {
+    Packages.insert({ name: 'METEOR', atmo: { name: 'METEOR', latestVersion: { git: 'https://github.com/meteor/meteor' } } });
+    updatePackage(Packages.findOne({ name: 'METEOR' }));
+  }
 
 //  console.log('res', JSON.stringify(packages));
 
