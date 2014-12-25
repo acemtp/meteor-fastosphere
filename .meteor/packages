@@ -7,3 +7,7 @@ meteor-platform
 mizzao:bootstrap-3
 acemtp:algolia
 acemtp:csm
+autopublish
+http
+chuangbo:marked
+iron:router
