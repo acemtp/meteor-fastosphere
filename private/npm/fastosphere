@@ -8,16 +8,30 @@ var path = require('path');
 var request = require('request');
 var marked = require('marked');
 var terminal = require('marked-terminal');
+var exec = require('child_process').execFile;
 
 var Algolia = require('algolia-search');
 
 program
+  .command('add <package>')
+  .description('Take the first package found by fastosphere and install it')
+  .action(installPackage);
+
+program
+  .command('*')
   .version('1.0.2')
   .usage('[options] <search ...>')
   .description('Blazing fast Meteor packages search cli powered by Algolia.')
   .option('-g, --github', 'display GitHub url')
   .option('-n, --nbhits <n>', 'number of results (default: 10)', parseInt)
-  .option('-l, --long', 'list in long format');
+  .option('-l, --long', 'list in long format')
+  .action(function () {
+    search(program.args[0], function (err, hits) {
+      if (err) return console.error(err);
+      console.log(table(hits));
+    });
+
+  });
 
 program.on('--help', function () {
   console.log('  Examples:');
@@ -30,18 +44,23 @@ program.on('--help', function () {
 
 program.parse(process.argv);
 
+if (!program.args.length) {
+  checkPackages();
+}
 
+//// functions
 
-if (program.args.length) {
+function search (package, callback) {
+
   var client = new Algolia('10L80F1AT7', 'b72cb5333cc8de90e7217eee27c48c63');
 
   var index = client.initIndex('Packages');
 
   var nbhits = program.nbhits || 10;
 
-  index.search(program.args, function (error, content) {
+  index.search(package, function (error, content) {
 
-    if(error) return console.error('Error:', content.message);
+    if(error) return callback(error, content.message);
 
   //  console.log(content.hits);
     var hits = [];
@@ -68,12 +87,24 @@ if (program.args.length) {
       hits.push(a);
     });
 
-    console.log(table(hits));
+    callback(null, hits);
 
   }, { hitsPerPage: nbhits });
 
-} else {
+}
+
+
+function checkPackages () {
   // look for a .meteor/version
+
+  if (!fs.existsSync('.meteor')) {
+    console.error('This is not a Meteor Project');
+    process.exit(1);
+  }
+
+  if (!fs.existsSync(path.join('.meteor', 'versions')) || !fs.existsSync(path.join('.meteor', 'release')))
+    process.exit(0);
+
   try {
     var versions = fs.readFileSync(path.join('.meteor', 'versions'), {encoding: 'ascii'});
     var release = fs.readFileSync(path.join('.meteor', 'release'), {encoding: 'ascii'});
@@ -92,25 +123,25 @@ if (program.args.length) {
       return console.error('error:', err);
     }
 
-// patch marked-terminal because listitem doesn't escape html code
-function unescapeEntities(html) {
-  return html
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'");
-}
+    // patch marked-terminal because listitem doesn't escape html code
+    function unescapeEntities(html) {
+      return html
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'");
+    }
 
-function tab(size) {
-  size = size || 4;
-  return (new Array(size)).join(' ');
-}
+    function tab(size) {
+      size = size || 4;
+      return (new Array(size)).join(' ');
+    }
 
-terminal.prototype.listitem = function(text) {
-  var e = this.o.unescape ? unescapeEntities : identity;
-  return tab() + this.o.listitem('* ' + e(text)) + '\n';
-};
+    terminal.prototype.listitem = function(text) {
+      var e = this.o.unescape ? unescapeEntities : identity;
+      return tab() + this.o.listitem('* ' + e(text)) + '\n';
+    };
 
     marked.setOptions({
       // Define custom renderer
@@ -120,6 +151,30 @@ terminal.prototype.listitem = function(text) {
     body.links = {};
 
     console.log(marked.parser(body));
+    process.exit(0);
   });
+}
 
+function installPackage (package) {
+
+  var client = new Algolia('10L80F1AT7', 'b72cb5333cc8de90e7217eee27c48c63');
+
+  var index = client.initIndex('Packages');
+
+  index.search(package, function (error, content) {
+    if (error) return console.error(error, content.message);
+
+    var packageName = content.hits[0].name;
+
+    console.log('installing package ', packageName);
+
+    exec('meteor', ['add', packageName], function (error, stdout, stderr) {
+      console.log(stdout);
+      if (error) {
+        console.error(error);
+        console.error(stderr);
+      }
+    });
+
+  }, {hitsPerPage: 1});
 }
