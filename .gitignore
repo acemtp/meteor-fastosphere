@@ -1,2 +1,3 @@
 settings.json
 deploy.sh
+private/npm/node_modules

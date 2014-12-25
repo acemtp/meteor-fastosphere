@@ -73,7 +73,7 @@ if (program.args.length) {
 } else {
   // look for a .meteor/version
   try {
-    var versions = fs.readFileSync(path.join('.meteor', 'versions'), {encoding: 'ascii'});
+    var release = fs.readFileSync(path.join('.meteor', 'release'), {encoding: 'ascii'});
     var packages = fs.readFileSync(path.join('.meteor', 'packages'), {encoding: 'ascii'});
 
   } catch (e) {
@@ -83,7 +83,7 @@ if (program.args.length) {
   request.post({
     url: 'http://localhost:3000/api/changelog',
     json: {
-      versions: versions,
+      release: release,
       packages: packages
     }
   }, function(err,httpResponse,body){
