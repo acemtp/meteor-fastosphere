@@ -5,6 +5,8 @@
   "dependencies": {
     "algolia-search": "1.7.x",
     "commander": "2.5.x",
+    "marked": "^0.3.2",
+    "marked-terminal": "^1.1.1",
     "moment": "2.8.x",
     "request": "^2.51.0",
     "text-table": "0.2.x"

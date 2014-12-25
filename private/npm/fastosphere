@@ -6,6 +6,8 @@ var moment = require('moment');
 var fs = require('fs');
 var path = require('path');
 var request = require('request');
+var marked = require('marked');
+var terminal = require('marked-terminal');
 
 var Algolia = require('algolia-search');
 
@@ -89,7 +91,15 @@ if (program.args.length) {
     if (err) {
       return console.error('error:', err);
     }
-    console.log(body);
+
+    marked.setOptions({
+      // Define custom renderer
+      renderer: new terminal()
+    });
+    // avoid marked to crash
+    body.links = {};
+
+    console.log(marked.parser(body));
   });
 
 }
