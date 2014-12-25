@@ -83,8 +83,7 @@ if (program.args.length) {
   request.post({
     url: 'http://localhost:3000/api/changelog',
     json: {
-      versions: versions,
-      release: release
+      versions: release + versions
     }
   }, function(err,httpResponse,body){
     if (err) {
