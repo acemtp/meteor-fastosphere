@@ -3,7 +3,6 @@ var semverClean = function (ver) {
   var m = re.exec(ver);
   var semver;
   if(m) {
-    console.log('m', m);
     semver = m[0];
     if(semver.split('.').length === 2) semver += '.0';
   }
@@ -32,10 +31,8 @@ changelog = function (packageName, currentVersion) {
       var ver = semverClean(t.text);
       currentVersion = semverClean(currentVersion);
 
-      console.log('eee', t.text, ver, currentVersion, semver.valid(ver), semver.valid(currentVersion));
-
       if(ver && currentVersion && semver.lte(ver, currentVersion)) {
-        console.log('found', t);
+        console.log('found', packageName, t);
         break;
       }
     }
@@ -45,7 +42,12 @@ changelog = function (packageName, currentVersion) {
 
   var subtokens = tokens.slice(0, i);
 
-console.log('subt', i, tokens.length, subtokens);
+  // main title is always the package name so we change title depth if needed
+  if(_.find(subtokens, function(st) { return st.type === 'heading' && st.depth === 1; })) {
+    subtokens.forEach(function (st) {
+      if(st.type === 'heading') st.depth++;
+    });
+  }
 
 //  subtokens.links = tokens.links;
 //  console.log('__-****************************');
