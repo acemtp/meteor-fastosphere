@@ -10,10 +10,19 @@ var semverClean = function (ver) {
 };
 
 
-changelog = function (packageName, currentVersion) {
+changelog = function (packageName, currentVersion, verbose) {
+  var msg;
   var p = Packages.findOne({ 'atmo.name': packageName });
-  if (!p) { console.log('Package not found', packageName); return undefined; }
-  if (!p.changelog) { console.log('Package without changelog', packageName); return undefined; }
+  if (!p) {
+    msg = 'Package "' + packageName + '" not found';
+    console.log(msg);
+    return verbose ? { type: 'heading', depth: 2, text: msg } : undefined;
+  }
+  if (!p.changelog) {
+    msg = 'Package "' + packageName + '" doesn\'t have changelog';
+    console.log(msg);
+    return verbose ? { type: 'heading', depth: 2, text: msg } : undefined;
+  }
 
   var tokens = marked.lexer(p.changelog, { gfm: true });
 
@@ -38,7 +47,11 @@ changelog = function (packageName, currentVersion) {
     }
   }
 
-  if(i === 0 || i === tokens.length) { console.log('Version not found in changelog', packageName); return undefined; }
+  if(i <= 1 || i === tokens.length) {
+    msg = 'Version "' + currentVersion + '" is not found in the changelog of package "' + packageName + '"';
+    console.log(msg);
+    return verbose ? { type: 'heading', depth: 2, text: msg } : undefined;
+  }
 
   var subtokens = tokens.slice(0, i);
 
@@ -74,34 +87,57 @@ changelog = function (packageName, currentVersion) {
 
 
 var getPackages = function () {
-  console.log('getPackages');
+  console.log('Get packages from Atmosphere...');
   var cnx = DDP.connect('https://atmospherejs.com');
-  var p = new Mongo.Collection('packages', { connection: cnx });
+  var pcnx = new Mongo.Collection('packages', { connection: cnx });
   var array = [];
-//  var client = new Algolia(Meteor.settings.public.algolia_application_id, Meteor.settings.algolia_private_id);
-//  var index = client.initIndex("Packages");
   cnx.subscribe('packages/search', '.', 4000, function () {
-    p.find().forEach(function (p) {
+
+console.log('nb flag before', Packages.find({ flagDelete: { $exists: true } }).count());
+
+    Packages.update({}, { $set: { flagDelete: true } }, { multi: true });
+
+console.log('nb flag before2', Packages.find({ flagDelete: { $exists: true } }).count());
+
+    pcnx.find().forEach(function (p) {
       p.objectID = p._id;
-
+      p.deleted = true;
       if(Packages.findOne({ 'atmo.name': p.name })) {
-        Packages.update(p._id, { $set: { atmo: p } });
+        Packages.update(p._id, { $set: { atmo: p, flagDelete: false } });
+        delete p.deleted;
       } else {
+        console.log('  New package', p.name);
         Packages.insert({ _id: p._id, atmo: p });
+        delete p.deleted;
       }
-
       array.push(p);
     });
 
+console.log('nb flag d', Packages.find({ flagDelete: { $exists: true } }).count());
+console.log('nb flag d true', Packages.find({ flagDelete: true }).count());
+console.log('nb flag d false', Packages.find({ flagDelete: false }).count());
+
+    Packages.update({ flagDelete: true }, { $set: { 'atmo.deleted': true } }, { multi: true });
+    Packages.update({}, { $unset: { flagDelete: '' } }, { multi: true });
+
+console.log('nb flag after', Packages.find({ flagDelete: { $exists: true } }).count());
+
 //    console.log('ff', array);
-/*
+
+    var client = new Algolia(Meteor.settings.public.algolia_application_id, Meteor.settings.algolia_private_id);
+    var index = client.initIndex("Packages");
     index.saveObjects(array, function(error, content) {
       if (error) console.error(Date(), 'ERROR:', content.message);
       else console.log(Date(), 'DONE', array.length, Packages.find().count());
     });
+/*
+    index.deleteObjects(array, function(error, content) {
+      if (error) console.error(Date(), 'ERROR:', content.message);
+      else console.log(Date(), 'DONE', array.length, Packages.find().count());
+    });
 */
-    console.log('Done');
     cnx.disconnect();
+    console.log('Done');
   });
 };
 
@@ -154,6 +190,13 @@ var updatePackages = function() {
   });
 };
 
+Meteor.methods({
+  atmo: function() {
+    getPackages();
+  }
+});
+
+
 Meteor.startup(function () {
 //  getPackages();
 //  updatePackages();
@@ -166,9 +209,8 @@ Meteor.startup(function () {
 
 //  console.log('res', JSON.stringify(packages));
 
-/*
   Meteor.setInterval(function() {
-    updatePackages();
+    getPackages();
   }, 1000*60*60*12);
-*/
+
 });

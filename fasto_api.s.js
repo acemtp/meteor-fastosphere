@@ -1,13 +1,14 @@
 Router.route('/api/changelog', { where: 'server' })
   .post(function () {
-    // POST /webhooks/stripe
-//    console.log(this.request.body.release);
-    console.log(this.request.body.versions);
+    if(!this.request.body || !this.request.body.versions)
+      this.response.end('no body');
 
     var str = '';
 
     var packages = this.request.body.versions.split('\n');
 
+    var verbose = this.request.body.verbose || false;
+console.log('ver', verbose);
 //console.log('pac', packages);
 
     var tokens = [];
@@ -15,7 +16,7 @@ Router.route('/api/changelog', { where: 'server' })
   	packages.forEach(function (p) {
       var pa = p.split('@');
       if(pa.length !== 2) return;
-      var subtokens = changelog(pa[0], pa[1]);
+      var subtokens = changelog(pa[0], pa[1], verbose);
       if(subtokens) {
         var title = pa[0] + ' (local ' +  pa[1] + ')';
         tokens.push({ type: 'heading', depth: 1, text: title });
@@ -27,6 +28,10 @@ Router.route('/api/changelog', { where: 'server' })
 */
       }
   	});
+
+    if(!tokens.length) {
+      tokens.push({ type: 'heading', depth: 1, text: 'Congrats, this project is up to date!' });
+    }
 
 //    console.log('tok', tokens);
 
