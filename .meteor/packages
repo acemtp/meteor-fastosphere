@@ -6,8 +6,6 @@
 meteor-platform
 mizzao:bootstrap-3
 acemtp:algolia
-acemtp:csm
-autopublish
 http
 chuangbo:marked
 iron:router
@@ -15,3 +13,7 @@ meteorhacks:npm
 
 
 npm-container
+accounts-github
+accounts-ui
+momentjs:moment
+audit-argument-checks

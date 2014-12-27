@@ -22,6 +22,7 @@
       <div class="col-sm-offset-1 col-sm-10 col-xs-12">
 
         <div class="jumbotron">
+        <p>{{> loginButtons}}</p>
           <h1>Fastosphere</h1>
           <p>Blazing fast <a href="http://meteor.com">Meteor</a> packages search powered by <a href="http://algolia.com">Algolia</a>.</p>
           <input type="text" name="q" id="q" autocomplete="off" spellcheck="false" autocorrect="false" class="form-control string" placeholder="Search by package name, author..." />
@@ -34,19 +35,28 @@
 <template name="searchResult">
   <div class="panel panel-default">
     <div class="panel-heading">
-      <a href="https://atmospherejs.com/{{#if authorName}}{{authorName}}{{else}}meteor{{/if}}/{{baseName}}" target="_blank">{{{_highlightResult.name.value}}}</a>
+<!--      <a href="https://atmospherejs.com/{{#if authorName}}{{authorName}}{{else}}meteor{{/if}}/{{baseName}}" target="_blank">{{{_highlightResult.name.value}}}</a>
+-->
+      {{#if gitUrl}}
+        <a href="{{gitUrl}}" target="_blank">{{{_highlightResult.name.value}}}</a>
+      {{else}}
+        {{{_highlightResult.name.value}}}
+      {{/if}}
+      ({{version}} released {{date}})
       <span class="pull-right">
         {{#if starCount}}
           {{starCount}} <i class="mdi-action-grade"></i>
         {{/if}}
-        {{#if latestVersion.git}}
-          <a href="{{latestVersion.git}}" target="_blank">GitHub</a>
+<!--
+        {{#if gitUrl}}
+          <a href="{{gitUrl}}" target="_blank">GitHub</a>
         {{/if}}
+-->
       </span>
     </div>
     <div class="panel-body">
       <p class="text-muted">
-        {{{_highlightResult.latestVersion.description.value}}}
+        {{{_highlightResult.description.value}}}
       </p>
     </div>
   </div>
@@ -56,8 +66,8 @@
   <div class="container">
     <div class="row">
       <div class="col-sm-offset-2 col-sm-8 col-xs-12">
-        <p>{{hitsLength}} on {{content.nbHits}} results found in {{content.processingTimeMS}}ms</p>
-        {{#each content.hits}}
+        <p>{{hitsLength}} on {{this.nbHits}} results found in {{this.processingTimeMS}}ms</p>
+        {{#each this.hits}}
           {{> searchResult}}
         {{/each}}
       </div>
@@ -71,7 +81,7 @@
   </div>
 </template>
 
-<body>
+<template name="home">
   {{> searchBar}}
   {{> searchResults}}
   <div class="container text-muted text-center well footer">
@@ -82,4 +92,4 @@
       </div>
     </div>
   </div>
-</body>
+</template>

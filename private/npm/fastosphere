@@ -51,12 +51,9 @@ program.on('--help', function () {
 
 program.parse(process.argv);
 
-//console.log('p', program);
+//console.log('prog', program);
 
-if (program.args.length) {
-  console.error('Command "'+program.args[0]+'" not exists');
-  program.help();
-} else {
+if(!program.args.length) {
   checkPackages();
 }
 
@@ -166,7 +163,7 @@ function installPackage (package) {
 
     var packageName = content.hits[0].name;
 
-    console.log('installing package ', packageName);
+    console.log('Installing package "' + packageName + '"...');
 
     exec('meteor', ['add', packageName], function (error, stdout, stderr) {
       console.log(stdout);
