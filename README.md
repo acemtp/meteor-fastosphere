@@ -6,7 +6,7 @@
 
 http://fastosphere.meteor.com provides you a very quick and easy way to find Meteor packages. You'll have basic information like package name, description, latest version, latest release date, GitHub Url, number of GitHub stars.
 
-It's an alternative to [Atmosphere](https://atmospherejs.com). The main advantages are it's freesoftware and a lot faster than Atmosphere.
+It's an alternative to [Atmosphere](https://atmospherejs.com). **The main advantages are it's freesoftware and a lot faster than Atmosphere.**
 
 ## Command Line Interface (CLI)
 
@@ -22,7 +22,7 @@ or if you have an older version
 
 ### Search
 
-It's an alternative to `meteor search`. The main advantage is it gives you real information about packages to help you to choose which one you want to install (GitHub stars, sort by score, GitHub Urls). So you don't have to leave your terminal to find which package to install.
+It's an alternative to `meteor search`. **The main advantage is it gives you real information about packages to help you to choose which one you want to install** (GitHub stars, sort by score, GitHub Urls). So you don't have to leave your terminal to find which package to install.
 
 If you want to compare, do this test:
 
