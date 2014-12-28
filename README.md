@@ -57,6 +57,8 @@ If you want to do a test from scratch:
 
 ![22__acemtp_macbook-pro-de-vianney____m_meteor-fastosphere-changelog-test__zsh__and_fastosphere_meteor_com](https://cloud.githubusercontent.com/assets/103561/5564995/7b741246-8ede-11e4-8149-a437297ccf39.png)
 
+You can also use `fastosphere -v` to have more information.
+
 It'll work only for packages who have a *valid* GitHub Url inside `package.js` and a CHANGELOG.md or a History.md (case insensitive) in the root folder of the GitHub project. If you have some packages, you can check the status on the [fastosphere website](http://fastosphere.meteor.com), it'll tell you if something is wrong. If you log on with your github account, you'll be able to force refresh the package so fastosphere will try to get the github/changelog file again (it's not reactive, you'll have to refresh the webpage to see if the error message left).
 
 So if you like the feature, create changelogs or ask package maintainers to create them.
