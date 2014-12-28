@@ -8,7 +8,7 @@ Router.route('/api/changelog', { where: 'server' })
     var packages = this.request.body.versions.split('\n');
 
     var verbose = this.request.body.verbose || false;
-console.log('ver', verbose);
+//console.log('ver', verbose);
 //console.log('pac', packages);
 
     var tokens = [];

@@ -1,24 +1,17 @@
 
-// try to extract a basic semver (X.X or X.X.X) from the string
-var semverClean = function (string) {
-  var re = /(\d+\.\d+(?:\.\d+)?)/gm; 
-  var m = re.exec(string);
-  var semver;
-  if(m) {
-    semver = m[0];
-    if(semver.split('.').length === 2) semver += '.0';
-  }
-  return semver;
-};
-
 
 changelog = function (packageName, currentVersion, verbose) {
   var msg;
-  var p = Packages.findOne({ 'meteor.package.name': packageName });
+  var p = Packages.findOne({ name: packageName });
   if (!p) {
     msg = 'Package "' + packageName + '" not found';
     console.log(msg);
     return verbose ? { type: 'heading', depth: 2, text: msg } : undefined;
+  }
+  if(p.meteor && p.meteor.version && p.meteor.version.unmigrated) {
+    msg = '**`Package "' + packageName + '" IS DEPRECATED. YOU SHOULD NOT USE IT ANYMORE`**';
+    console.log(msg);
+    return { type: 'text', text: msg };
   }
   if (!p.changelog) {
     msg = 'Package "' + packageName + '" doesn\'t have changelog';
@@ -28,18 +21,16 @@ changelog = function (packageName, currentVersion, verbose) {
 
   var tokens = marked.lexer(p.changelog, { gfm: true });
 
-  var semver = Meteor.npmRequire('semver');
-
-  currentVersion = semverClean(currentVersion);
-
   for(var i = 0; i < tokens.length; i++) {
     var t = tokens[i];
     if(t.type === 'heading') {
-      var ver = semverClean(t.text);
-
-      if(ver && currentVersion && semver.lte(ver, currentVersion)) {
-        console.log('found', packageName, t);
-        break;
+      var ver = semverExtract(t.text);
+      if(ver && currentVersion) {
+        var comp = semverCompare(ver, currentVersion);
+        if(ver === currentVersion || (comp !== undefined && comp <= 0)) {
+          console.log('Found a changelog version', packageName, t);
+          break;
+        }
       }
     }
   }

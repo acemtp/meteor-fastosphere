@@ -1,0 +1,11 @@
+{
+  "algolia_private_id": "af7f5a212628849354b75ffb13b3e948",
+  "github_client_id": "000dbbc3c779d4426d8e",
+  "github_client_secret": "b57e2f9830282014280e426df412d5921a825be6",
+
+  "public" : {
+	"production": true,
+    "algolia_application_id": "10L80F1AT7",
+    "algolia_public_id": "b72cb5333cc8de90e7217eee27c48c63"
+  }
+}

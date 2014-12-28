@@ -1,13 +1,7 @@
-// autoform prend 4.0.0 comme plus recente au lieu de 4.2.1
-// noname car version sans packages et package trouve pas le truc avec deja une version
-// -> virer les noname
-// -> requet a la main pour ajouter name:
-// -> retirer le updateGit: true
-// -> force reload meteor pour recup les ver
-// verifier que le package METEOR est bien crafté et changelog le recupere bien)
-// mettre API key de github dans settings
 
-semver = Meteor.npmRequire('semver');
+Packages._ensureIndex('name', { unique: 1, sparse: 1 });
+
+console.log(Meteor.settings.public.production?'Prod':'Dev');
 
 Meteor.startup(function() {
 /*
@@ -27,36 +21,68 @@ isAdmin = function (uid) {
 
 Meteor.publish('packages', function () {
   if(isAdmin(this.userId))
-    return Packages.find({});
+    return Packages.find();
 });
 
 
 Meteor.methods({
-  algoliaUpdate: function() {
+  refresh: function (package) {
+    check(package, String);
+    if(this.userId) {
+      githubUpdate(Packages.findOne({ name: package }));
+      algoliaUpdate();
+    }
+  },
+  delete: function () {
+    if(isAdmin(this.userId)) {
+      Packages.remove();
+    }
+  },
+  deleteEmptyNames: function () {
+    if(isAdmin(this.userId)) {
+      Packages.remove({name: {$exists: false}});
+    }
+  },
+
+  atmosphereUpdate: function () {
+    if(isAdmin(this.userId))
+      atmosphereUpdate();
+  },
+  algoliaUpdate: function () {
     if(isAdmin(this.userId))
       algoliaUpdate(true);
   },
-  githubUpdate: function(package) {
+  githubUpdate: function (package) {
     check(package, String);
     if(isAdmin(this.userId)) {
-      githubUpdate(Packages.findOne({ 'meteor.package.name': package }));
+      githubUpdate(Packages.findOne({ name: package }));
       algoliaUpdate();
     }
   },
-  githubsUpdate: function() {
+  githubsUpdate: function (limit) {
+    check(limit, Number);
     if(isAdmin(this.userId)) {
-      githubsUpdate();
+      githubsUpdate(limit);
       algoliaUpdate();
     }
+  },
+  meteorUpdate: function () {
+    if(isAdmin(this.userId)) {
+      meteorUpdate();
+    }
+  },
+  meteorResetSyncTokens: function () {
+    if(isAdmin(this.userId))
+      meteorResetSyncTokens();
   },
 });
 
-Meteor.startup(function () {
 
-  var m = Packages.findOne({ name: 'METEOR' });
-  if(!m) {
-    Packages.insert({ name: 'METEOR', meteor: { package: { name: 'METEOR' }, version: { packageName: 'METEOR', git: 'https://github.com/meteor/meteor' } } });
-    updateGit(Packages.findOne({ name: 'METEOR' }));
+Meteor.startup(function () {
+  // create METEOR special package to be able to get changelog
+  if(!Packages.findOne({ name: 'METEOR' })) {
+    var id = Packages.insert({ name: 'METEOR', meteor: { version: { git: 'https://github.com/meteor/meteor' } } });
+    githubUpdate(Packages.findOne(id));
   }
 
   Meteor.setInterval(function() {
@@ -66,5 +92,9 @@ Meteor.startup(function () {
   Meteor.setInterval(function() {
     githubsUpdate();
   }, 1000 * 60 * 10);
+
+  Meteor.setInterval(function() {
+    atmosphereUpdate();
+  }, 1000 * 60 * 60 * 12);
 
 });

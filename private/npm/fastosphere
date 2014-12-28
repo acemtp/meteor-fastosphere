@@ -130,7 +130,8 @@ function checkPackages () {
   // send file to server.
   console.log('Sending request to server...');
   request.post({
-    url: 'http://localhost:3000/api/changelog',
+    url: 'http://fastosphere.meteor.com/api/changelog',
+//    url: 'http://localhost:3000/api/changelog',
     json: {
       versions: release + versions,
       verbose: program.verbose

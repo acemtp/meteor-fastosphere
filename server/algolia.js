@@ -1,6 +1,6 @@
 
 var client = new Algolia(Meteor.settings.public.algolia_application_id, Meteor.settings.algolia_private_id);
-var index = client.initIndex("PackagesTest");
+var index = client.initIndex(Meteor.settings.public.production?'Packages':'PackagesTest');
 
 algoliaReset = function () {
   index.clearIndex(function(error, content) {
@@ -13,28 +13,62 @@ algoliaUpdate = function (force) {
 //  console.log('Update Algolia index...');
   var array = [];
   var selector = { meteor: { $exists: true } };
-  if(!force) selector.updateAlgolia = true;
-  Packages.find(selector).forEach(function(p) {
-    var score = 0;
-    if(p.git)
-      score = p.git.stargazers_count;
-    if(p.meteor.version && p.meteor.version.git)
-      score++;
-    if(p.changelog)
-      score = score * 1.5;
 
-    if(p.meteor.version && p.meteor.version.unmigrated)
-      score = -1;
+  if(force) {
+    algoliaReset();
+  } else {
+    selector.updateAlgolia = true;
+  }
+
+  Packages.find(selector).forEach(function(p) {
+    if(p.name === 'METEOR') return;
+
+    var score = 0;
+    if(p.atmo)
+      score = p.atmo.score;
+    else {
+      if(p.git)
+        score = p.git.stargazers_count;
+      if(p.meteor.version && p.meteor.version.git)
+        score++;
+    }
+
+    // Tweak Atmosphere score
+
+    // higher if has a changelog
+    if(p.changelog) score *= 1.4;
+
+    // higher if has a git
+    if(p.git) score *= 1.2;
+
+    // higher if lot of git stars
+    if(p.git && p.git.stargazers_count > 10000) score *= 100;
+    else if(p.git && p.git.stargazers_count > 1000) score *= 10;
+    else if(p.git && p.git.stargazers_count > 100) score *= 2;
+
+    // lower f MDG packages
+    if(p.name.split(':').length !== 2) score /= 2;
+
+    if(p.meteor.version && p.meteor.version.unmigrated) score = -1;
+
+    var starCount = 0;
+    if(p.git)
+      starCount = p.git.stargazers_count;
+    else if(p.atmo)
+      starCount = p.atmo.starCount;
     array.push({
       objectID: p._id,
-      name: p.meteor.package && p.meteor.package.name || '[noname]',
+      name: p.name,
       description: p.meteor.version && p.meteor.version.description || '[nodescription]',
       score: score,
+      atmoScore: p.atmo && p.atmo.score || 0,
       version: p.meteor.version && p.meteor.version.version || '0.0.0',
       lastUpdated: p.meteor.version && p.meteor.version.lastUpdated || new Date(1970),
-      starCount: p.git && p.git.stargazers_count || 0,
+      starCount: starCount,
       gitUrl: p.meteor.version && p.meteor.version.git || '',
       deleted: p.meteor.version && p.meteor.version.unmigrated || false,
+      changelogUrl: p.changelogUrl,
+      badgit : p.meteor.version && (p.meteor.version.badgit || p.meteor.version.git === null || p.meteor.version.git === '')
     });
   });
   Packages.update({ updateAlgolia: true }, { $unset: { updateAlgolia: '' } }, { multi: true });

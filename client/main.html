@@ -55,9 +55,20 @@
       </span>
     </div>
     <div class="panel-body">
-      <p class="text-muted">
+      {{#if deleted}}
+        <p class="text-danger"><b>THIS PACKAGE WAS DELETED. DO NOT USE IT ANYMORE.</b></p>
+      {{/if}}
+      <p>
         {{{_highlightResult.description.value}}}
       </p>
+      {{#if errors}}
+        <div class="pull-right text-danger small">
+          <a href="http://github.com">{{errors}}</a>
+          {{#if currentUser}}
+            (<a class="refresh" href="#">refresh</a>)
+          {{/if}}
+        </div>
+      {{/if}}
     </div>
   </div>
 </template>

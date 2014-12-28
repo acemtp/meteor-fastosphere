@@ -1,6 +1,10 @@
 {
   "algolia_private_id": "",
+  "github_client_id": "",
+  "github_client_secret": "",
+
   "public" : {
+	"production": false,
     "algolia_application_id": "",
     "algolia_public_id": ""
   }

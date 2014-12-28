@@ -6,3 +6,11 @@
 .footer {
   margin-top: 50px;
 }
+
+.small {
+  font-size: 90%;
+}
+
+.text-danger a {
+	color: red;
+}
