@@ -1,4 +1,4 @@
-# meteor-fastosphere
+# Fastosphere
 
 **Fastosphere** is a [website](http://fastosphere.meteor.com) and a [CLI](http://en.wikipedia.org/wiki/Command-line_interface) to search Meteor packages really quickly thanks to [Algolia search engine](http://algolia.com).
 
@@ -24,6 +24,8 @@ If you want to compare, do this test:
     $ npm -g install fastosphere
     $ fastosphere search moment -l
 
+![3__acemtp_macbook-pro-de-vianney____m_meteor-fastosphere-changelog-test__zsh_](https://cloud.githubusercontent.com/assets/103561/5565008/f89a4d1c-8ede-11e4-8baf-1ff3d667e907.png)
+
 You can also test:
 
     $ fastosphere search mo           # lazy
@@ -47,6 +49,9 @@ If you want to do a test from scratch:
     $ meteor-fastosphere-changelog-test
     $ fastosphere
 
+![22__acemtp_macbook-pro-de-vianney____m_meteor-fastosphere-changelog-test__zsh__and_fastosphere_meteor_com](https://cloud.githubusercontent.com/assets/103561/5564995/7b741246-8ede-11e4-8149-a437297ccf39.png)
+
+It'll work only for packages who have a *valid* GitHub Url inside `package.js` and a CHANGELOG.md or a History.md (case insensitive) in the root folder of the GitHub project. If you have some packages, you can check the status on the [fastosphere website](http://fastosphere.meteor.com), it'll tell you if something is wrong. If you log on with your github account, you'll be able to force refresh the package so fastosphere will try to get the github/changelog file again (it's not reactive, you'll have to refresh the webpage to see if the error message left).
 
 
 ### Add
