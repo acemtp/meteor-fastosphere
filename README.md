@@ -14,7 +14,11 @@ The command line has a few really cool features.
 
 ### Install
 
-    npm -g install fastosphere
+    sudo npm -g install fastosphere
+
+or if you have an older version
+
+    sudo npm update -g
 
 ### Search
 
