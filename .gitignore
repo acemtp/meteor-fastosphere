@@ -1,3 +1,4 @@
 settings.json
+settings.live.json
 deploy.sh
 private/npm/node_modules
