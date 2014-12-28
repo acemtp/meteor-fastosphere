@@ -84,18 +84,18 @@ function search (package, callback) {
 
       a.push(h.name);
 
-      if(options.long) a.push(h.latestVersion.version || '');
+      if(options.long) a.push(h.version || '');
 
-      if(options.long) a.push(moment(h.latestVersion.published).fromNow());
+      if(options.long) a.push(moment(h.lastUpdated).fromNow());
 
-      var desc = h.latestVersion.description;
+      var desc = h.description;
       var width = options.github ? 50 : 80;
       if (desc.length > width) {
         desc = desc.substr(0, width - 3) + '...';
       }
       a.push(desc);
 
-      if(options.github) a.push(h.latestVersion.git || '');
+      if(options.github) a.push(h.gitUrl || '');
 
       hits.push(a);
     });
