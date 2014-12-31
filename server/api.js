@@ -1,3 +1,6 @@
+
+var ChangelogsCalls = new Mongo.Collection('changelogsCalls');
+
 Router.route('/api/changelog', { where: 'server' })
   .post(function () {
     if(!this.request.body || !this.request.body.versions)
@@ -8,10 +11,10 @@ Router.route('/api/changelog', { where: 'server' })
     var packages = this.request.body.versions.split('\n');
 
     var verbose = this.request.body.verbose || false;
-//console.log('ver', verbose);
-//console.log('pac', packages);
 
     var tokens = [];
+
+    ChangelogsCalls.insert({ createdAt: new Date(), packages: packages });
 
   	packages.forEach(function (p) {
       var pa = p.split('@');
@@ -21,20 +24,11 @@ Router.route('/api/changelog', { where: 'server' })
         var title = pa[0] + ' (local ' +  pa[1] + ')';
         tokens.push({ type: 'heading', depth: 1, text: title });
         tokens = tokens.concat(subtokens);
-/*
-        var title = pa[0] + ' (local ' +  pa[1] + ')';
-        str += '\n\n# ' + title + '\n\n';
-        str += cl;
-*/
       }
   	});
 
-    if(!tokens.length) {
-      tokens.push({ type: 'heading', depth: 1, text: 'Congrats, this project is up to date!' });
-    }
+    if(!tokens.length)
+      tokens.push({ type: 'heading', depth: 1, text: 'Sorry, nothing new to show you!' });
 
-//    console.log('tok', tokens);
-
-//console.log('str', str);
     this.response.end(JSON.stringify(tokens));
   });

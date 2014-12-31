@@ -24,7 +24,7 @@
         <div class="jumbotron">
         <p>{{> loginButtons}}</p>
           <h1>Fastosphere</h1>
-          <p>Blazing fast <a href="http://meteor.com">Meteor</a> packages search powered by <a href="http://algolia.com">Algolia</a>.</p>
+          <p>Blazing fast <a href="http://meteor.com">Meteor</a> packages search powered by <a href="http://algolia.com">Algolia</a>. There's also a <a href="https://github.com/acemtp/meteor-fastosphere">command line version</a>.</p>
           <input type="text" name="q" id="q" autocomplete="off" spellcheck="false" autocorrect="false" class="form-control string" placeholder="Search by package name, author..." />
         </div>
       </div>
@@ -77,7 +77,7 @@
   <div class="container">
     <div class="row">
       <div class="col-sm-offset-2 col-sm-8 col-xs-12">
-        <p>{{hitsLength}} on {{this.nbHits}} results found in {{this.processingTimeMS}}ms</p>
+        <p>{{hitsLength}} on {{this.nbHits}} results found in {{this.processingTimeMS}}ms {{#if currentUser}}({{packageCount}}){{/if}}</p>
         {{#each this.hits}}
           {{> searchResult}}
         {{/each}}

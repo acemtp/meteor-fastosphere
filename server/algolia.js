@@ -46,7 +46,7 @@ algoliaUpdate = function (force) {
     else if(p.git && p.git.stargazers_count > 1000) score *= 10;
     else if(p.git && p.git.stargazers_count > 100) score *= 2;
 
-    // lower f MDG packages
+    // lower if MDG packages
     if(p.name.split(':').length !== 2) score /= 2;
 
     if(p.meteor.version && p.meteor.version.unmigrated) score = -1;

@@ -75,15 +75,15 @@ Meteor.methods({
     if(isAdmin(this.userId))
       meteorResetSyncTokens();
   },
+  meteorCreateMeteorPackage : function () {
+    if(isAdmin(this.userId))
+      meteorCreateMeteorPackage();
+  }  
 });
 
 
 Meteor.startup(function () {
-  // create METEOR special package to be able to get changelog
-  if(!Packages.findOne({ name: 'METEOR' })) {
-    var id = Packages.insert({ name: 'METEOR', meteor: { version: { git: 'https://github.com/meteor/meteor' } } });
-    githubUpdate(Packages.findOne(id));
-  }
+  meteorCreateMeteorPackage();
 
   Meteor.setInterval(function() {
     meteorUpdate();

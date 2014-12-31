@@ -13,7 +13,7 @@ var exec = require('child_process').execFile;
 var Algolia = require('algolia-search');
 
 program
-  .version('1.0.4')
+  .version('1.0.5')
   .option('-v, --verbose', 'More information about changelog');
 
 program
@@ -136,9 +136,14 @@ function checkPackages () {
       versions: release + versions,
       verbose: program.verbose
     }
-  }, function(err,httpResponse,body){
-    if (err) {
+  }, function(err, httpResponse, body){
+
+    if(err) {
       return console.error('error:', err);
+    }
+
+    if(typeof body !== 'object') {
+      return console.error('server returns a bad body', typeof body, body);
     }
 
     marked.setOptions({

@@ -171,3 +171,11 @@ meteorUpdate = function () {
     meteorUpdateInProgress = false;
   });
 };
+
+
+// create METEOR special package to be able to get changelog
+meteorCreateMeteorPackage = function () {
+  Packages.remove({ name: 'METEOR' });
+  var id = Packages.insert({ name: 'METEOR', meteor: { version: { git: 'https://github.com/meteor/meteor' } } });
+  githubUpdate(Packages.findOne(id));
+};

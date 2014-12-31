@@ -37,6 +37,11 @@ Template.searchBar.events({
 });
 
 Template.searchResults.helpers({
+  packageCount: function () {
+    return Packages.find().count();
+  },
+  
+
 /*
   content: function() {
     return Session.get('content');

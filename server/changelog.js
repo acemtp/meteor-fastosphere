@@ -9,7 +9,7 @@ changelog = function (packageName, currentVersion, verbose) {
     return verbose ? { type: 'heading', depth: 2, text: msg } : undefined;
   }
   if(p.meteor && p.meteor.version && p.meteor.version.unmigrated) {
-    msg = '**`Package "' + packageName + '" IS DEPRECATED. YOU SHOULD NOT USE IT ANYMORE`**';
+    msg = '**`Package "' + packageName + '" WAS DELETED. YOU SHOULD NOT USE IT ANYMORE`**';
     console.log(msg);
     return { type: 'text', text: msg };
   }
