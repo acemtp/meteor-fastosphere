@@ -51,6 +51,7 @@ mizzao:bootstrap-3@3.3.1_1
 mobile-status-bar@1.0.2
 momentjs:moment@2.8.4
 mongo@1.0.11
+mquandalle:ismobile@0.1.0
 npm-container@1.0.0
 oauth@1.1.3
 oauth2@1.1.2

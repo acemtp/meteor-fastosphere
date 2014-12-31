@@ -6,7 +6,7 @@
 
 http://fastosphere.meteor.com provides you a very quick and easy way to find Meteor packages. You'll have basic information like package name, description, latest version, latest release date, GitHub Url, number of GitHub stars.
 
-It's an alternative to [Atmosphere](https://atmospherejs.com). The main advantages are it's freesoftware and a lot faster than Atmosphere.
+It's an alternative to [Atmosphere](https://atmospherejs.com). **The main advantages are it's freesoftware and a lot faster than Atmosphere.**
 
 ## Command Line Interface (CLI)
 
@@ -14,11 +14,15 @@ The command line has a few really cool features.
 
 ### Install
 
-    npm -g install fastosphere
+    sudo npm -g install fastosphere
+
+or if you have an older version
+
+    sudo npm update -g
 
 ### Search
 
-It's an alternative to `meteor search`. The main advantage is it gives you real information about packages to help you to choose which one you want to install (GitHub stars, sort by score, GitHub Urls). So you don't have to leave your terminal to find which package to install.
+It's an alternative to `meteor search`. **The main advantage is it gives you real information about packages to help you to choose which one you want to install** (GitHub stars, sort by score, GitHub Urls). So you don't have to leave your terminal to find which package to install.
 
 If you want to compare, do this test:
 
@@ -52,6 +56,8 @@ If you want to do a test from scratch:
     $ fastosphere
 
 ![22__acemtp_macbook-pro-de-vianney____m_meteor-fastosphere-changelog-test__zsh__and_fastosphere_meteor_com](https://cloud.githubusercontent.com/assets/103561/5564995/7b741246-8ede-11e4-8149-a437297ccf39.png)
+
+You can also use `fastosphere -v` to have more information.
 
 It'll work only for packages who have a *valid* GitHub Url inside `package.js` and a CHANGELOG.md or a History.md (case insensitive) in the root folder of the GitHub project. If you have some packages, you can check the status on the [fastosphere website](http://fastosphere.meteor.com), it'll tell you if something is wrong. If you log on with your github account, you'll be able to force refresh the package so fastosphere will try to get the github/changelog file again (it's not reactive, you'll have to refresh the webpage to see if the error message left).
 
