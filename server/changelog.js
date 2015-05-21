@@ -1,5 +1,4 @@
 
-
 changelog = function (packageName, currentVersion, verbose) {
   var msg;
   var p = Packages.findOne({ name: packageName });

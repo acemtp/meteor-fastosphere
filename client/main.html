@@ -20,10 +20,9 @@
   <div class="container">
     <div class="row">
       <div class="col-sm-offset-1 col-sm-10 col-xs-12">
-
         <div class="jumbotron">
           <h1>Fastosphere</h1>
-          <p>Blazing fast <a href="http://meteor.com">Meteor</a> packages search powered by <a href="http://algolia.com">Algolia</a>. There's also a <a href="https://github.com/acemtp/meteor-fastosphere">command line version</a>.</p>
+          <p>Blazing fast <a href="http://meteor.com">Meteor</a> packages search powered by <a href="http://algolia.com">Algolia</a>. There's also a <a href="https://github.com/acemtp/meteor-fastosphere#command-line-interface-cli" target="_blank">command line</a>.</p>
           <input type="text" name="q" id="q" autocomplete="off" spellcheck="false" autocorrect="false" class="form-control string" placeholder="Search by package name, author..." />
         </div>
       </div>
@@ -34,8 +33,7 @@
 <template name="searchResult">
   <div class="panel panel-default">
     <div class="panel-heading">
-<!--      <a href="https://atmospherejs.com/{{#if authorName}}{{authorName}}{{else}}meteor{{/if}}/{{baseName}}" target="_blank">{{{_highlightResult.name.value}}}</a>
--->
+      <!-- <a href="https://atmospherejs.com/{{#if authorName}}{{authorName}}{{else}}meteor{{/if}}/{{baseName}}" target="_blank">{{{_highlightResult.name.value}}}</a> -->
       {{#if gitUrl}}
         <a href="{{gitUrl}}" target="_blank">{{{_highlightResult.name.value}}}</a>
       {{else}}
@@ -43,8 +41,11 @@
       {{/if}}
       ({{version}} released {{date}})
       <span class="pull-right">
+        {{#if totalAdds}}
+          {{totalAdds}} <i class="mdi-file-file-download" data-toggle="tooltip" title="" data-original-title="Number of meteor add {{name}}"></i>
+        {{/if}}
         {{#if starCount}}
-          {{starCount}} <i class="mdi-action-grade"></i>
+          {{starCount}} <i class="mdi-action-grade" data-toggle="tooltip" title="" data-original-title="Number of github star + atmosphere star"></i>
         {{/if}}
 <!--
         {{#if gitUrl}}
@@ -55,7 +56,7 @@
     </div>
     <div class="panel-body">
       {{#if deleted}}
-        <p class="text-danger"><b>THIS PACKAGE WAS DELETED. DO NOT USE IT ANYMORE.</b></p>
+        <p class="text-danger"><b>THIS PACKAGE WAS DELETED. DON'T USE IT.</b></p>
       {{/if}}
       <p>
         {{{_highlightResult.description.value}}}

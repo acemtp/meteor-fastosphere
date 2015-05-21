@@ -17,4 +17,6 @@ accounts-ui
 momentjs:moment
 audit-argument-checks
 mquandalle:ismobile
+fezvrasta:bootstrap-material-design
 acemtp:algolia
+percolate:synced-cron

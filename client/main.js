@@ -9,24 +9,30 @@ hitsPerPageInc = Meteor.isMobile ? 10 : 50;
 Session.setDefault('hitsPerPage', hitsPerPageInc);
 Session.setDefault('q', '');
 
+
+// Setup Algolia
 client = AlgoliaSearch(Meteor.settings.public.algolia_application_id, Meteor.settings.public.algolia_public_id, { dsn: true });
 index = client.initIndex(Meteor.settings.public.production ? 'Packages' : 'PackagesTest');
 
+// Do a new Algolia search if the search query changed
 Tracker.autorun(function () {
   var q = Session.get('q');
   index.search(q, { hitsPerPage: Session.get('hitsPerPage') }, function (error, content) {
-    if (error) {
-      console.log('Error: ' + content.message);
-      return;
-    }
+    if(error) return console.error('Error during Algolia search: ', error);
     Session.set('content', content);
   });
 });
 
-Template.searchBar.rendered = function () {
+// Init material design ripple effect
+Template.searchResult.onRendered(function () {
+  $.material.init();
+});
+
+// Focus the search bar when it's rendered
+Template.searchBar.onRendered(function () {
   $('#q').val(Session.get('q'));
   $('#q').focus();
-};
+});
 
 Template.searchBar.events({
   'keyup #q': function (e) {
@@ -34,21 +40,12 @@ Template.searchBar.events({
   },
 });
 
-Template.searchResult.rendered = function () {
-  $('[data-toggle="tooltip"]').tooltip();
-};
+// searchResults
 
 Template.searchResults.helpers({
   packageCount: function () {
     return Packages.find().count();
   },
-
-
-/*
-  content: function() {
-    return Session.get('content');
-  },
-*/
   hitsLength: function() {
     var c = Session.get('content');
     return c && c.hits && c.hits.length;
@@ -65,6 +62,8 @@ Template.searchResults.events({
     return false;
   },
 });
+
+// searchResult
 
 Template.searchResult.helpers({
   date: function () {
@@ -83,4 +82,9 @@ Template.searchResult.events({
     Meteor.call('refresh', this.name);
     return false;
   },
+});
+
+// Init material design tooltip when result is rendered
+Template.searchResult.onRendered(function () {
+  $('[data-toggle="tooltip"]').tooltip();
 });

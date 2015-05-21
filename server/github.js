@@ -13,32 +13,27 @@ githubUpdate = function (p) {
   if(!p) return;
 
   var giturl = p.meteor && p.meteor.version && p.meteor.version.git || '';
-//  console.log('git', giturl);
 
   if(!giturl) return githubBadGit(p);
 
-  var re = /^https?:\/\/github\.com\/([^\/]+)\/(.*?)(?:\.git)?$/gm; 
+  var re = /^https?:\/\/github\.com\/([^\/]+)\/(.*?)(?:\.git)?$/gm;
   var m = re.exec(giturl);
-//    console.log('m', m);
 
   if(!m) return githubBadGit(p);
-
-//  console.log('g', gitRemaining);
-//  if(gitRemaining < 500) return console.log('Not enough git remaining to try', gitRemaining);
 
   var userAgent = "Meteor";
   if (Meteor.release) userAgent += "/" + Meteor.release;
 
   try {
-    // get github info
-    var res = HTTP.get('https://api.github.com/repos/'+m[1]+'/'+m[2]+'?client_id='+Meteor.settings.github_client_id+'&client_secret='+Meteor.settings.github_client_secret, { headers: { Accept: 'application/json', "User-Agent": userAgent } });
+    // Get github info
+    var res = HTTP.get('https://api.github.com/repos/'+m[1]+'/'+m[2]+'?client_id='+Meteor.settings.github_client_id+'&client_secret='+Meteor.settings.github_client_secret, { headers: { Accept: 'application/json', 'User-Agent': userAgent } });
 
     gitRemaining = +res.headers['x-ratelimit-remaining'];
-    //console.log('res', res);
+
     Packages.update(p._id, { $set: { updateAlgolia: true, git: res.data } });
 
-    // try to get changelog
-    res = HTTP.get('https://api.github.com/repos/'+m[1]+'/'+m[2]+'/contents'+'?client_id='+Meteor.settings.github_client_id+'&client_secret='+Meteor.settings.github_client_secret, { headers: { Accept: 'application/json', "User-Agent": userAgent } });
+    // Try to get changelog
+    res = HTTP.get('https://api.github.com/repos/'+m[1]+'/'+m[2]+'/contents'+'?client_id='+Meteor.settings.github_client_id+'&client_secret='+Meteor.settings.github_client_secret, { headers: { Accept: 'application/json', 'User-Agent': userAgent } });
     gitRemaining = +res.headers['x-ratelimit-remaining'];
 
     res.data.forEach(function(f) {
@@ -63,9 +58,10 @@ githubUpdate = function (p) {
 };
 
 var githubsUpdateInProgress = false;
-githubsUpdate = function(limit) {
-  console.log('Get Github...');
-  if(githubsUpdateInProgress) return console.log('githubsUpdate already in progress');
+
+githubsUpdate = function (limit) {
+  console.log('GITHUB: Updating...');
+  if(githubsUpdateInProgress) return console.log('GITHUB: Update already in progress');
 
   githubsUpdateInProgress = true;
 
@@ -81,7 +77,38 @@ githubsUpdate = function(limit) {
   });
 
   githubsUpdateInProgress = false;
-  console.log('Done');
+  console.log('GITHUB: Updated');
 };
 
-//updateGits();
+
+Meteor.methods({
+  githubUpdate: function (package) {
+    check(package, String);
+    if(isAdmin(this.userId)) {
+      githubUpdate(Packages.findOne({ name: package }));
+      algoliaUpdate();
+    }
+  },
+  githubsUpdate: function (limit) {
+    check(limit, Number);
+    if(isAdmin(this.userId)) {
+      githubsUpdate(limit);
+      algoliaUpdate();
+    }
+  },
+});
+
+
+SyncedCron.add({
+  name: 'GIT: Update',
+  schedule: function(parser) {
+    return parser.text('every 10 minutes');
+  },
+  job: function() {
+    var before = moment();
+    githubsUpdate();
+    return 'GIT: Took' + moment().diff(before)/1000 + ' seconds';
+  }
+});
+
+//githubsUpdate();

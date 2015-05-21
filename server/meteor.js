@@ -59,7 +59,7 @@ syncToken = { lastDeletion: 1409018311766,
   versions: 1419604568239,
   builds: 1419604569035,
   releaseTracks: 1419141755611,
-  releaseVersions: 1419298444109 
+  releaseVersions: 1419298444109
 };
 */
 
@@ -160,20 +160,18 @@ console.log('rev', res.collections.releaseVersions);
 var meteorUpdateInProgress = false;
 
 meteorUpdate = function () {
-  if(meteorUpdateInProgress) return console.log('meteorUpdate already in progress');
+  if(meteorUpdateInProgress) return console.log('METEOR: Update already in progress');
   meteorUpdateInProgress = true;
 
-//  console.log('Get packages from Meteor...');
+  //console.log('METEOR: Updating packages from Meteor...');
   count = 1;
   remote = remote || DDP.connect('http://packages.meteor.com');
   packageRequest(function () {
-//    console.log('Done');
-//    console.log('final syncToken', SyncTokens.findOne());
+    //console.log('METEOR: Updated');
     algoliaUpdate(false);
     meteorUpdateInProgress = false;
   });
 };
-
 
 // create METEOR special package to be able to get changelog
 meteorCreateMeteorPackage = function () {
@@ -181,3 +179,38 @@ meteorCreateMeteorPackage = function () {
   var id = Packages.insert({ name: 'METEOR', meteor: { version: { git: 'https://github.com/meteor/meteor' } } });
   githubUpdate(Packages.findOne(id));
 };
+
+Meteor.startup(function () {
+  meteorCreateMeteorPackage();
+});
+
+Meteor.methods({
+  meteorUpdate: function () {
+    if(isAdmin(this.userId)) {
+      meteorUpdate();
+    }
+  },
+  meteorResetSyncTokens: function () {
+    if(isAdmin(this.userId))
+      meteorResetSyncTokens();
+  },
+  meteorCreateMeteorPackage : function () {
+    if(isAdmin(this.userId))
+      meteorCreateMeteorPackage();
+  }
+});
+
+
+SyncedCron.add({
+  name: 'METEOR: Update',
+  schedule: function(parser) {
+    return parser.text('every 10 seconds');
+  },
+  job: function() {
+    var before = moment();
+    meteorUpdate();
+    return 'METEOR: Took' + moment().diff(before)/1000 + ' seconds';
+  }
+});
+
+//meteorUpdate();

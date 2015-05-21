@@ -11,7 +11,7 @@ algoliaReset = function () {
 
 
 algoliaUpdate = function (force) {
-  console.log('ALGOLIA: Updating index...');
+  //console.log('ALGOLIA: Updating index...');
   var array = [];
   var selector = { meteor: { $exists: true } };
 
@@ -27,16 +27,16 @@ algoliaUpdate = function (force) {
 
     var score = 0;
     if(p.atmo) score = p.atmo.score;
-    if(p.git && p.git.stargazers_count > score) score = p.git.stargazers_count;
+    //if(p.git && p.git.stargazers_count > score) score = p.git.stargazers_count;
     if(p.meteor.version && p.meteor.version.git) score++;
 
     // Tweak Atmosphere score
 
-    // higher if has a changelog
-    if(p.changelog) score *= 1.4;
-
     // higher if has a git
     if(p.git) score *= 1.2;
+
+    // higher if has a changelog
+    if(p.changelog) score *= 1.4;
 
     // higher if lot of git stars
     if(p.git && p.git.stargazers_count > 10000) score *= 100;
@@ -44,14 +44,14 @@ algoliaUpdate = function (force) {
     else if(p.git && p.git.stargazers_count > 100) score *= 2;
 
     // lower if MDG package
-    if(p.name.split(':').length !== 2) score /= 2;
+    if(p.name.indexOf(':') === -1) score /= 2;
 
-    // lower if very old package
+    // negative if deleted package
     if(p.meteor.version && p.meteor.version.unmigrated) score = -1;
 
     var starCount = 0;
-    if(p.git) starCount = p.git.stargazers_count;
-    else if(p.atmo) starCount = p.atmo.starCount;
+    if(p.git) starCount += p.git.stargazers_count;
+    if(p.atmo) starCount += p.atmo.starCount;
 
     array.push({
       objectID: p._id,
@@ -65,7 +65,9 @@ algoliaUpdate = function (force) {
       gitUrl: p.meteor.version && p.meteor.version.git || '',
       deleted: p.meteor.version && p.meteor.version.unmigrated || false,
       changelogUrl: p.changelogUrl,
-      badgit : p.meteor.version && (p.meteor.version.badgit || p.meteor.version.git === null || p.meteor.version.git === '')
+      badgit: p.meteor.version && (p.meteor.version.badgit || p.meteor.version.git === null || p.meteor.version.git === ''),
+      totalAdds: p.meteorstat && p.meteorstat.totalAdds || 0,
+      directAdds: p.meteorstat && p.meteorstat.directAdds || 0,
     });
   });
   Packages.update({ updateAlgolia: true }, { $unset: { updateAlgolia: '' } }, { multi: true });
@@ -76,6 +78,13 @@ algoliaUpdate = function (force) {
       else console.log('Updated ' + array.length + ' packages to Algolia');
     });
   }
-  console.log('ALGOLIA: Updated ' + array.length + ' packages.');
+  //console.log('ALGOLIA: Updated ' + array.length + ' packages.');
 };
 
+
+Meteor.methods({
+  algoliaUpdate: function () {
+    if(isAdmin(this.userId))
+      algoliaUpdate(true);
+  },
+});

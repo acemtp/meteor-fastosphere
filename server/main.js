@@ -9,7 +9,7 @@ add this to packages.json to profile with nodetime
   "nodetime": "0.8.15"
 
   Meteor.npmRequire('nodetime').profile({
-    accountKey: 'ac6b81e20388c2e79361f9ce6f546a54f51cf5c8', 
+    accountKey: 'ac6b81e20388c2e79361f9ce6f546a54f51cf5c8',
     appName: 'Node.js Application'
   });
 */
@@ -24,6 +24,9 @@ Meteor.publish('packages', function () {
     return Packages.find();
 });
 
+Meteor.startup(function () {
+  SyncedCron.start();
+});
 
 Meteor.methods({
   refresh: function (package) {
@@ -43,58 +46,4 @@ Meteor.methods({
       Packages.remove({name: {$exists: false}});
     }
   },
-
-  atmosphereUpdate: function () {
-    if(isAdmin(this.userId))
-      atmosphereUpdate();
-  },
-  algoliaUpdate: function () {
-    if(isAdmin(this.userId))
-      algoliaUpdate(true);
-  },
-  githubUpdate: function (package) {
-    check(package, String);
-    if(isAdmin(this.userId)) {
-      githubUpdate(Packages.findOne({ name: package }));
-      algoliaUpdate();
-    }
-  },
-  githubsUpdate: function (limit) {
-    check(limit, Number);
-    if(isAdmin(this.userId)) {
-      githubsUpdate(limit);
-      algoliaUpdate();
-    }
-  },
-  meteorUpdate: function () {
-    if(isAdmin(this.userId)) {
-      meteorUpdate();
-    }
-  },
-  meteorResetSyncTokens: function () {
-    if(isAdmin(this.userId))
-      meteorResetSyncTokens();
-  },
-  meteorCreateMeteorPackage : function () {
-    if(isAdmin(this.userId))
-      meteorCreateMeteorPackage();
-  }  
-});
-
-
-Meteor.startup(function () {
-  meteorCreateMeteorPackage();
-
-  Meteor.setInterval(function() {
-    meteorUpdate();
-  }, 1000 * 10);
-
-  Meteor.setInterval(function() {
-    githubsUpdate();
-  }, 1000 * 60 * 10);
-
-  Meteor.setInterval(function() {
-    atmosphereUpdate();
-  }, 1000 * 60 * 60 * 12);
-
 });
