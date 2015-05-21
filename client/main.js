@@ -9,18 +9,18 @@ hitsPerPageInc = Meteor.isMobile ? 10 : 50;
 Session.setDefault('hitsPerPage', hitsPerPageInc);
 Session.setDefault('q', '');
 
-var client = new AlgoliaSearch(Meteor.settings.public.algolia_application_id, Meteor.settings.public.algolia_public_id, { dsn: true });
-var index = client.initIndex(Meteor.settings.public.production?'Packages':'PackagesTest');
+client = AlgoliaSearch(Meteor.settings.public.algolia_application_id, Meteor.settings.public.algolia_public_id, { dsn: true });
+index = client.initIndex(Meteor.settings.public.production ? 'Packages' : 'PackagesTest');
 
 Tracker.autorun(function () {
   var q = Session.get('q');
-  index.search(q, function(success, content) {
-    if (!success) {
+  index.search(q, { hitsPerPage: Session.get('hitsPerPage') }, function (error, content) {
+    if (error) {
       console.log('Error: ' + content.message);
       return;
     }
     Session.set('content', content);
-  }, { hitsPerPage: Session.get('hitsPerPage') });
+  });
 });
 
 Template.searchBar.rendered = function () {
@@ -34,11 +34,15 @@ Template.searchBar.events({
   },
 });
 
+Template.searchResult.rendered = function () {
+  $('[data-toggle="tooltip"]').tooltip();
+};
+
 Template.searchResults.helpers({
   packageCount: function () {
     return Packages.find().count();
   },
-  
+
 
 /*
   content: function() {

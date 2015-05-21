@@ -22,7 +22,6 @@
       <div class="col-sm-offset-1 col-sm-10 col-xs-12">
 
         <div class="jumbotron">
-        <p>{{> loginButtons}}</p>
           <h1>Fastosphere</h1>
           <p>Blazing fast <a href="http://meteor.com">Meteor</a> packages search powered by <a href="http://algolia.com">Algolia</a>. There's also a <a href="https://github.com/acemtp/meteor-fastosphere">command line version</a>.</p>
           <input type="text" name="q" id="q" autocomplete="off" spellcheck="false" autocorrect="false" class="form-control string" placeholder="Search by package name, author..." />
@@ -63,7 +62,7 @@
       </p>
       {{#if errors}}
         <div class="pull-right text-danger small">
-          <a href="http://github.com">{{errors}}</a>
+          <i class="mdi-alert-warning" data-toggle="tooltip" title="" data-original-title="{{errors}}"></i>
           {{#if currentUser}}
             (<a class="refresh" href="#">refresh</a>)
           {{/if}}
@@ -95,11 +94,12 @@
 <template name="home">
   {{> searchBar}}
   {{> searchResults}}
-  <div class="container text-muted text-center well footer">
+  <div class="container text-muted text-center footer">
     <div class="row">
       <div class="col-sm-offset-1 col-sm-10 col-xs-12">
         <p>Developed by <a href="http://ploki.info">Vianney Lecroart</a> and <a href="https://github.com/peernohell">François Lecroart</a> with Meteor and Algolia.</p>
-        <p>This is a free software project, get the <a href="https://github.com/acemtp/meteor-fastosphere">source code</a>.</p>
+        <p>This is a free software project, get <a href="https://github.com/acemtp/meteor-fastosphere">the source code</a> or report <a href="https://github.com/acemtp/meteor-fastosphere/issues">an issue</a>.</p>
+        <p>{{> loginButtons}}</p>
       </div>
     </div>
   </div>
