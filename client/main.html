@@ -77,7 +77,7 @@
   <div class="container">
     <div class="row">
       <div class="col-sm-offset-2 col-sm-8 col-xs-12">
-        <p>{{hitsLength}} on {{this.nbHits}} results found in {{this.processingTimeMS}}ms {{#if currentUser}}({{packageCount}}){{/if}}</p>
+        <p>{{hitsLength}} of {{this.nbHits}} results found in {{this.processingTimeMS}}ms {{#if currentUser}}({{packageCount}}){{/if}}</p>
         {{#each this.hits}}
           {{> searchResult}}
         {{/each}}
