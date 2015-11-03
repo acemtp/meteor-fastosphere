@@ -1,3 +1,7 @@
+Template.searchResult.onRendered(() => {
+  $('[data-toggle="tooltip"]').tooltip();
+});
+
 Template.searchResult.helpers({
   date() {
     return moment(this.lastUpdated).fromNow();

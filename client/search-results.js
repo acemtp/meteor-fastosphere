@@ -2,10 +2,9 @@
 let hitsPerPageInc = Meteor.isMobile ? 10 : 50;
 Session.setDefault('hitsPerPage', hitsPerPageInc);
 
-// Init material design effect (ripple, etc) and tooltips
+// Init material design effect (ripple, etc)
 Template.searchResults.onRendered(() => {
   $.material.init();
-  $('[data-toggle="tooltip"]').tooltip();
 });
 
 // Init clipboard with event delegation (only on parent)
@@ -22,9 +21,6 @@ Template.searchResults.onDestroyed(function searchResultsonDestroyed() {
 
 
 Template.searchResults.helpers({
-  packageCount() {
-    return Packages.find().count();
-  },
   hitsLength() {
     const c = Session.get('content');
     return c && c.hits && c.hits.length;

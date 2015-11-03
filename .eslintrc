@@ -274,6 +274,8 @@
     "algoliaUpdate": true,
     "githubUpdate": true,
     "semverExtract": true,
-    "semverCompare": true
+    "semverCompare": true,
+    "debug": true,
+    "MeteorStats": true
   }
 }

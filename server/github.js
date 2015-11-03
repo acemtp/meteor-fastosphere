@@ -1,5 +1,5 @@
 
-let gitRemaining = 9999999;
+// let gitRemaining = 9999999;
 
 const githubBadGit = p => {
   if (!p) return;
@@ -22,30 +22,31 @@ githubUpdate = p => {
   const userAgent = 'Meteor' + (Meteor.release ? '/' + Meteor.release : '');
 
   try {
-    // Get github info
     let res;
 
+    // Get github package info
     res = HTTP.get('https://api.github.com/repos/' + m[1] + '/' + m[2] + '?client_id=' + Meteor.settings.github_client_id + '&client_secret=' + Meteor.settings.github_client_secret, { headers: { Accept: 'application/json', 'User-Agent': userAgent } });
 
-    gitRemaining = +res.headers['x-ratelimit-remaining'];
+    // gitRemaining = +res.headers['x-ratelimit-remaining'];
 
     Packages.update(p._id, { $set: { updateAlgolia: true, git: res.data } });
 
-    // Try to get changelog
+    // Get the repo filenames
     res = HTTP.get('https://api.github.com/repos/' + m[1] + '/' + m[2] + '/contents' + '?client_id=' + Meteor.settings.github_client_id + '&client_secret='+Meteor.settings.github_client_secret, { headers: { Accept: 'application/json', 'User-Agent': userAgent } });
-    gitRemaining = +res.headers['x-ratelimit-remaining'];
+    // gitRemaining = +res.headers['x-ratelimit-remaining'];
 
     res.data.forEach(f => {
       if (_.indexOf(['history.md', 'changelog.md'], f.name.toLowerCase()) !== -1) {
         console.log('  Found changelog in', p.name, f.name);
 
+        // Get the change log
         res = HTTP.get(f.download_url);
         Packages.update(p._id, { $set: { updateAlgolia: true, changelogUrl: f.download_url, changelog: res.content } });
       }
     });
   } catch (e) {
     if (e && e.response && e.response.headers && e.response.headers['x-ratelimit-remaining']) {
-      gitRemaining = +e.response.headers['x-ratelimit-remaining'];
+      // gitRemaining = +e.response.headers['x-ratelimit-remaining'];
     }
 
     if (e && e.response && e.response.statusCode === 404) {

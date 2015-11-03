@@ -20,7 +20,7 @@ body {
 
 /* less shadow on jumbotron */
 body .well, body .jumbotron {
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.16), 0 1px 1px rgba(0, 0, 0, 0.23) !important;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.16), 0 1px 1px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* icon are too big by default */
@@ -30,5 +30,9 @@ i {
 
 .clippy {
   width: 13px;
+  cursor: pointer;
+}
+
+.pointer {
   cursor: pointer;
 }

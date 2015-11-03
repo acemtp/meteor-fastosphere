@@ -1,9 +1,6 @@
+console.log(Meteor.settings.public.production ? 'Prod' : 'Dev');
 
-Packages._ensureIndex('name', { unique: 1, sparse: 1 });
-
-console.log(Meteor.settings.public.production?'Prod':'Dev');
-
-Meteor.startup(function() {
+Meteor.startup(() => {
 /*
 add this to packages.json to profile with nodetime
   "nodetime": "0.8.15"
@@ -18,10 +15,6 @@ add this to packages.json to profile with nodetime
 isAdmin = uid => {
   return uid && Meteor.users.findOne(uid).services.github.id === 103561;
 };
-
-Meteor.publish('packages', function publishpackages() {
-  if (isAdmin(this.userId)) return Packages.find();
-});
 
 Meteor.startup(() => {
   SyncedCron.start();
@@ -40,6 +33,6 @@ Meteor.methods({
   },
   deleteEmptyNames() {
     if (!isAdmin(this.userId)) return;
-    Packages.remove({name: {$exists: false}});
+    Packages.remove({ name: { $exists: false } });
   },
 });

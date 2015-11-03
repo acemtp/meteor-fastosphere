@@ -1,5 +1,5 @@
 
-const ChangelogsCalls = new Mongo.Collection('changelogsCalls');
+ChangelogsCalls = new Mongo.Collection('changelogsCalls');
 
 Router.route('/api/changelog', { where: 'server' })
   .post(function post() {

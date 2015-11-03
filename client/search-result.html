@@ -4,17 +4,21 @@
       {{#if gitUrl}}
         <a href="{{gitUrl}}" target="_blank">{{{_highlightResult.name.value}}}</a>
         <img class="clippy" src="clippy.svg" alt="Copy to clipboard" data-clipboard-text="meteor add {{name}}" data-toggle="tooltip" data-trigger="hover" title="Copy to clipboard">
-        <a href="{{gitUrl}}" target="_blank"><img class="clippy" src="github.svg" alt="Link to github" data-toggle="tooltip" data-trigger="hover" title="Link to Github"></a>
+        <!-- <a href="{{gitUrl}}" target="_blank"><img class="clippy" src="github.svg" alt="Link to github" data-toggle="tooltip" data-trigger="hover" title="Link to GitHub"></a> -->
       {{else}}
         {{{_highlightResult.name.value}}}
       {{/if}}
       ({{version}} released {{date}})
       <span class="pull-right">
-        {{#if totalAdds}}
-          {{totalAdds}} <i class="mdi-file-file-download" data-toggle="tooltip" title="" data-original-title="Number of 'meteor add'"></i>
+        {{#if downloadCounts.directAdds}}
+          <span class="pointer" data-toggle="tooltip" data-animation="false" title="" data-original-title="Total number of 'meteor add' / {{downloadCounts.lastMonthDirectAdds}} last month / {{downloadCounts.lastWeekDirectAdds}} last week">
+            {{downloadCounts.directAdds}}<i class="mdi-file-file-download"></i>
+          </span>
         {{/if}}
         {{#if starCount}}
-          {{starCount}} <i class="mdi-action-grade" data-toggle="tooltip" title="" data-original-title="Number of github star + atmosphere star"></i>
+          <span class="pointer" data-toggle="tooltip" data-animation="false" title="" data-original-title="{{gitStarCount}} GitHub stars + {{atmoStarCount}} atmosphere stars">
+            {{starCount}} <i class="mdi-action-grade"></i>
+        </span>
         {{/if}}
       </span>
     </div>

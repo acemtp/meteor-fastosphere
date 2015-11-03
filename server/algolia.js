@@ -59,12 +59,13 @@ algoliaUpdate = (force) => {
       version: p.meteor.version && p.meteor.version.version || '0.0.0',
       lastUpdated: p.meteor.version && p.meteor.version.lastUpdated || new Date(1970),
       starCount: starCount,
+      gitStarCount: p.git && p.git.stargazers_count || 0,
+      atmoStarCount: p.atmo && p.atmo.starCount || 0,
       gitUrl: p.meteor.version && p.meteor.version.git || '',
       deleted: p.meteor.version && p.meteor.version.unmigrated || false,
       changelogUrl: p.changelogUrl,
       badgit: p.meteor.version && (p.meteor.version.badgit || p.meteor.version.git === null || p.meteor.version.git === ''),
-      totalAdds: p.meteorstat && p.meteorstat.totalAdds || 0,
-      directAdds: p.meteorstat && p.meteorstat.directAdds || 0,
+      downloadCounts: p.meteorstat || {},
     });
   });
   Packages.update({ updateAlgolia: true }, { $unset: { updateAlgolia: '' } }, { multi: true });

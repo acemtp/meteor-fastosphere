@@ -46,7 +46,7 @@ builds
 }
 */
 
-const SyncTokens = new Mongo.Collection('syncTokens');
+SyncTokens = new Mongo.Collection('syncTokens');
 
 //var MeteorLogs = new Mongo.Collection('meteorLogs');
 
@@ -70,7 +70,7 @@ const meteorResetSyncTokens = () => {
 };
 
 const packageRequest = (cb) => {
-  remote.call('syncNewPackageData', SyncTokens.findOne() ? _.omit(SyncTokens.findOne(), '_id') : { format: '1.1' }, {/* shortPagesForTest: true */}, function (err, res) {
+  remote.call('syncNewPackageData', SyncTokens.findOne() ? _.omit(SyncTokens.findOne(), '_id') : { format: '1.1' }, {/* shortPagesForTest: true */}, (err, res) => {
     // console.log('  Page', count++);
     if (err) return console.log('error', err);
     if (!res) return console.log('no result');
@@ -95,7 +95,7 @@ console.log('rev', res.collections.releaseVersions);
 //      console.log('no reset data');
     }
 
-    _.each(res.collections.packages, function(p) {
+    _.each(res.collections.packages, p => {
 //      console.log('  package', p._id, p.name);
       const cp = Packages.findOne({ 'name': p.name });
       if (cp) {
@@ -115,7 +115,7 @@ console.log('rev', res.collections.releaseVersions);
       }
     });
 
-    _.each(res.collections.versions, function(v) {
+    _.each(res.collections.versions, v => {
 ///      console.log('New version', v.packageName, v.version);
 
       const cp = Packages.findOne({ 'name': v.packageName });
