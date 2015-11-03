@@ -1,13 +1,13 @@
 
-changelog = function (packageName, currentVersion, verbose) {
-  var msg;
-  var p = Packages.findOne({ name: packageName });
+changelog = (packageName, currentVersion, verbose) => {
+  let msg;
+  const p = Packages.findOne({ name: packageName });
   if (!p) {
     msg = 'Package "' + packageName + '" not found';
     console.log(msg);
     return verbose ? { type: 'heading', depth: 2, text: msg } : undefined;
   }
-  if(p.meteor && p.meteor.version && p.meteor.version.unmigrated) {
+  if (p.meteor && p.meteor.version && p.meteor.version.unmigrated) {
     msg = '**`Package "' + packageName + '" WAS DELETED. YOU SHOULD NOT USE IT ANYMORE`**';
     console.log(msg);
     return { type: 'text', text: msg };
@@ -18,15 +18,16 @@ changelog = function (packageName, currentVersion, verbose) {
     return verbose ? { type: 'heading', depth: 2, text: msg } : undefined;
   }
 
-  var tokens = marked.lexer(p.changelog, { gfm: true });
+  const tokens = marked.lexer(p.changelog, { gfm: true });
 
-  for(var i = 0; i < tokens.length; i++) {
-    var t = tokens[i];
-    if(t.type === 'heading') {
-      var ver = semverExtract(t.text);
-      if(ver && currentVersion) {
-        var comp = semverCompare(ver, currentVersion);
-        if(ver === currentVersion || (comp !== undefined && comp <= 0)) {
+  let i;
+  for (i = 0; i < tokens.length; i++) {
+    const t = tokens[i];
+    if (t.type === 'heading') {
+      const ver = semverExtract(t.text);
+      if (ver && currentVersion) {
+        const comp = semverCompare(ver, currentVersion);
+        if (ver === currentVersion || (comp !== undefined && comp <= 0)) {
           console.log('Found a changelog version', packageName, t);
           break;
         }
@@ -34,18 +35,18 @@ changelog = function (packageName, currentVersion, verbose) {
     }
   }
 
-  if(i <= 1 || i === tokens.length) {
+  if (i <= 1 || i === tokens.length) {
     msg = 'Version "' + currentVersion + '" is not found in the changelog of package "' + packageName + '"';
     console.log(msg);
     return verbose ? { type: 'heading', depth: 2, text: msg } : undefined;
   }
 
-  var subtokens = tokens.slice(0, i);
+  const subtokens = tokens.slice(0, i);
 
   // main title is always the package name so we change title depth if needed
-  if(_.find(subtokens, function(st) { return st.type === 'heading' && st.depth === 1; })) {
-    subtokens.forEach(function (st) {
-      if(st.type === 'heading') st.depth++;
+  if (_.find(subtokens, st => { return st.type === 'heading' && st.depth === 1; })) {
+    subtokens.forEach(st => {
+      if (st.type === 'heading') st.depth++;
     });
   }
   return subtokens;

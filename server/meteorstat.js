@@ -15,36 +15,37 @@
 */
 
 
-var meteorstatUpdateInProgress = false;
+let meteorstatUpdateInProgress = false;
 
-meteorstatUpdate = function (date) {
-  if(meteorstatUpdateInProgress) return console.log('METEORSTAT: Update already in progress');
+const meteorstatUpdate = date => {
+  if (meteorstatUpdateInProgress) return console.log('METEORSTAT: Update already in progress');
   meteorstatUpdateInProgress = true;
 
   // get meteor stats
 
-  if(!date) date = moment().add(-1, 'days');
+  if (!date) date = moment().add(-1, 'days');
 
   console.log('METEORSTAT: Updating packages from Meteor...', date.toString());
 
+  let res;
   try {
-    var res = HTTP.get('http://packages.meteor.com/stats/v1/' + date.format('YYYY-MM-DD'));
-  } catch(e) {
+    res = HTTP.get('http://packages.meteor.com/stats/v1/' + date.format('YYYY-MM-DD'));
+  } catch (e) {
     console.error('  METEORSTAT: Exception', e);
   }
 
-  if(!res || res.statusCode !== 200) {
+  if (!res || res.statusCode !== 200) {
     console.error('  METEORSTAT: Cannot get stat', res);
   } else {
-    var jsons = res.content.split('\n');
-    _.each(jsons, function(json) {
-      if(json.length < 1) return;
-      var p = JSON.parse(json);
-      var cp = Packages.findOne({ name: p.name });
-      if(cp) {
+    const jsons = res.content.split('\n');
+    _.each(jsons, json => {
+      if (json.length < 1) return;
+      const p = JSON.parse(json);
+      const cp = Packages.findOne({ name: p.name });
+      if (cp) {
         Packages.update(cp._id, {
           $set: { updateAlgolia: true },
-          $inc: { 'meteorstat.totalAdds': p.totalAdds, 'meteorstat.directAdds': p.directAdds }
+          $inc: { 'meteorstat.totalAdds': p.totalAdds, 'meteorstat.directAdds': p.directAdds },
         });
       } else {
         console.error('METEORSTAT: Package is in meteorstat but not in my collection ignore it', p.name);
@@ -53,49 +54,46 @@ meteorstatUpdate = function (date) {
   }
 
   console.log('METEORSTAT: Updated');
-  if(!date) algoliaUpdate(false);
+  if (!date) algoliaUpdate(false);
   meteorstatUpdateInProgress = false;
 };
 
-meteorstatReset = function () {
+const meteorstatReset = () => {
   Packages.update({}, { $unset: { meteorstat: '' } }, { multi: true });
 
-  var date = moment('2014-08-20');
+  let date = moment('2014-08-20');
 
   while (true) {
     meteorstatUpdate(date);
     date = date.add(1, 'days');
-    if(moment().diff(date) < 0) break;
+    if (moment().diff(date) < 0) break;
   }
   algoliaUpdate(false);
 };
 
 SyncedCron.add({
   name: 'METEORSTAT: Update',
-  schedule: function(parser) {
+  schedule(parser) {
     return parser.text('every 24 hours');
   },
-  job: function() {
-    var before = moment();
+  job() {
+    const before = moment();
     meteorstatUpdate();
-    return 'METEORSTAT: Took' + moment().diff(before)/1000 + ' seconds';
-  }
+    return 'METEORSTAT: Took' + moment().diff(before) / 1000 + ' seconds';
+  },
 });
 
 
 Meteor.methods({
-  meteorstatUpdate: function () {
-    if(isAdmin(this.userId)) {
-      meteorstatUpdate();
-    }
+  meteorstatUpdate() {
+    if (!isAdmin(this.userId)) return;
+    meteorstatUpdate();
   },
-  meteorstatReset: function () {
-    if(isAdmin(this.userId)) {
-      meteorstatReset();
-    }
+  meteorstatReset() {
+    if (!isAdmin(this.userId)) return;
+    meteorstatReset();
   },
 });
 
-
-//meteorstatUpdate();
-//meteorstatReset();
+// meteorstatUpdate();
+// meteorstatReset();

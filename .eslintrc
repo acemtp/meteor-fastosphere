@@ -263,16 +263,17 @@
     "$": false,               // jQuery
     // install Meteor packages
     "Router": false,          // iron-router
-    "SimpleSchema":false,
-    "toastr": false,
-    "AutoForm": false,
-    "Counts": false,
-    "Mousetrap": false,
     "SyncedCron": false,
-    "CodeMirror": false,
     "Clipboard": false,
-    "log": false,
+    "AlgoliaSearch": false,
+    "marked": false,
     // Custom global
-    "Packages": true
+    "Packages": true,
+    "isAdmin": true,
+    "algoliaReset": true,
+    "algoliaUpdate": true,
+    "githubUpdate": true,
+    "semverExtract": true,
+    "semverCompare": true
   }
 }

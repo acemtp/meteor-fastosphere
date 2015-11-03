@@ -3,7 +3,7 @@ accounts-github@1.0.6
 accounts-oauth@1.1.8
 accounts-ui@1.1.6
 accounts-ui-unstyled@1.1.8
-acemtp:algolia@3.7.8
+acemtp:algolia@3.9.1
 audit-argument-checks@1.0.4
 autoupdate@1.2.4
 babel-compiler@5.8.24_1

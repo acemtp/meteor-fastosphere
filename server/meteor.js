@@ -46,12 +46,12 @@ builds
 }
 */
 
-var SyncTokens = new Mongo.Collection('syncTokens');
+const SyncTokens = new Mongo.Collection('syncTokens');
 
 //var MeteorLogs = new Mongo.Collection('meteorLogs');
 
-var count = 1;
-var remote;
+let count = 1;
+let remote;
 /*
 syncToken = { lastDeletion: 1409018311766,
   format: '1.0',
@@ -63,16 +63,15 @@ syncToken = { lastDeletion: 1409018311766,
 };
 */
 
-meteorResetSyncTokens = function () {
+const meteorResetSyncTokens = () => {
   SyncTokens.remove();
   console.log('SyncTokens removed, resync from the start.');
   meteorUpdate();
 };
 
-
-packageRequest = function (cb) {
+const packageRequest = (cb) => {
   remote.call('syncNewPackageData', SyncTokens.findOne() ? _.omit(SyncTokens.findOne(), '_id') : { format: '1.1' }, {/* shortPagesForTest: true */}, function (err, res) {
-    //console.log('  Page', count++);
+    // console.log('  Page', count++);
     if (err) return console.log('error', err);
     if (!res) return console.log('no result');
 /*
@@ -87,7 +86,7 @@ console.log('rev', res.collections.releaseVersions);
 
 //    MeteorLogs.insert({ data: JSON.stringify(res) });
 
-    if(res.resetData) {
+    if (res.resetData) {
       console.log('  Meteor asks me to reset data');
 //      Packages.update({}, { $unset: { meteor: '' } }, { multi: true });
 ///      MeteorLogs.remove();
@@ -98,19 +97,19 @@ console.log('rev', res.collections.releaseVersions);
 
     _.each(res.collections.packages, function(p) {
 //      console.log('  package', p._id, p.name);
-      var cp = Packages.findOne({ 'name': p.name });
-      if(cp) {
+      const cp = Packages.findOne({ 'name': p.name });
+      if (cp) {
 ///        console.log('Update package', p.name);
         try {
           Packages.update(cp._id, { $set: { updateAlgolia: true, name: p.name, 'meteor.package': p } });
-        } catch(e) {
+        } catch (e) {
           console.error('ERROR update package', cp, p, e);
         }
       } else {
 ///        console.log('New package', p.name);
         try {
           Packages.insert({ updateAlgolia: true, name: p.name, meteor: { package: p } });
-        } catch(e) {
+        } catch (e) {
           console.error('ERROR insert package', p, e);
         }
       }
@@ -119,19 +118,19 @@ console.log('rev', res.collections.releaseVersions);
     _.each(res.collections.versions, function(v) {
 ///      console.log('New version', v.packageName, v.version);
 
-      var cp = Packages.findOne({ 'name': v.packageName });
+      const cp = Packages.findOne({ 'name': v.packageName });
 
       // remove dependencies because we don't need it and it generates error with stevezhu:velocity.js
       delete v.dependencies;
-      if(cp) {
-        if(!cp.meteor || !cp.meteor.version || semverCompare(v.version, cp.meteor.version.version) >= 0) {
+      if (cp) {
+        if (!cp.meteor || !cp.meteor.version || semverCompare(v.version, cp.meteor.version.version) >= 0) {
 ///          console.log('  Update version', v.packageName, (cp.meteor && cp.meteor.version) ? cp.meteor.version.version : '0.0.0', '<', v.version);
           try {
-            if(cp.meteor && cp.meteor.version && cp.meteor.version.git !== v.git)
+            if (cp.meteor && cp.meteor.version && cp.meteor.version.git !== v.git)
               Packages.update(cp._id, { $set: { updateGit: true } });
 
             Packages.update(cp._id, { $set: { updateAlgolia: true, name: v.packageName, 'meteor.version': v } });
-          } catch(e) {
+          } catch (e) {
             console.error('ERROR update version', cp, v, e);
           }
         } else {
@@ -141,13 +140,13 @@ console.log('rev', res.collections.releaseVersions);
 //        console.log('  No package for this version', v);
         try {
           Packages.insert({ updateAlgolia: true, name: v.packageName, meteor: { version: v } });
-        } catch(e) {
+        } catch (e) {
           console.error('ERROR insert version', v, e);
         }
       }
     });
 
-    if(res.syncToken) {
+    if (res.syncToken) {
       SyncTokens.update('syncTokens', _.extend(res.syncToken || {}, { _id: 'syncTokens'} ), { upsert: true });
     }
 
@@ -157,60 +156,59 @@ console.log('rev', res.collections.releaseVersions);
   });
 };
 
-var meteorUpdateInProgress = false;
+let meteorUpdateInProgress = false;
 
-meteorUpdate = function () {
-  if(meteorUpdateInProgress) return console.log('METEOR: Update already in progress');
+const meteorUpdate = () => {
+  if (meteorUpdateInProgress) return console.log('METEOR: Update already in progress');
   meteorUpdateInProgress = true;
 
-  //console.log('METEOR: Updating packages from Meteor...');
+  // console.log('METEOR: Updating packages from Meteor...');
   count = 1;
   remote = remote || DDP.connect('http://packages.meteor.com');
-  packageRequest(function () {
-    //console.log('METEOR: Updated');
+  packageRequest(() => {
+    // console.log('METEOR: Updated');
     algoliaUpdate(false);
     meteorUpdateInProgress = false;
   });
 };
 
 // create METEOR special package to be able to get changelog
-meteorCreateMeteorPackage = function () {
+const meteorCreateMeteorPackage = () => {
   Packages.remove({ name: 'METEOR' });
-  var id = Packages.insert({ name: 'METEOR', meteor: { version: { git: 'https://github.com/meteor/meteor' } } });
+  const id = Packages.insert({ name: 'METEOR', meteor: { version: { git: 'https://github.com/meteor/meteor' } } });
   githubUpdate(Packages.findOne(id));
 };
 
-Meteor.startup(function () {
+Meteor.startup(() => {
   meteorCreateMeteorPackage();
 });
 
 Meteor.methods({
-  meteorUpdate: function () {
-    if(isAdmin(this.userId)) {
-      meteorUpdate();
-    }
+  meteorUpdate() {
+    if (!isAdmin(this.userId)) return;
+    meteorUpdate();
   },
-  meteorResetSyncTokens: function () {
-    if(isAdmin(this.userId))
-      meteorResetSyncTokens();
+  meteorResetSyncTokens() {
+    if (!isAdmin(this.userId)) return;
+    meteorResetSyncTokens();
   },
-  meteorCreateMeteorPackage : function () {
-    if(isAdmin(this.userId))
-      meteorCreateMeteorPackage();
-  }
+  meteorCreateMeteorPackage() {
+    if (!isAdmin(this.userId)) return;
+    meteorCreateMeteorPackage();
+  },
 });
 
 
 SyncedCron.add({
   name: 'METEOR: Update',
-  schedule: function(parser) {
+  schedule(parser) {
     return parser.text('every 10 seconds');
   },
-  job: function() {
-    var before = moment();
+  job() {
+    const before = moment();
     meteorUpdate();
-    return 'METEOR: Took' + moment().diff(before)/1000 + ' seconds';
-  }
+    return 'METEOR: Took' + moment().diff(before) / 1000 + ' seconds';
+  },
 });
 
-//meteorUpdate();
+// meteorUpdate();

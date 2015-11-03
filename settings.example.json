@@ -4,7 +4,7 @@
   "github_client_secret": "",
 
   "public" : {
-	"production": false,
+    "production": false,
     "algolia_application_id": "",
     "algolia_public_id": ""
   }

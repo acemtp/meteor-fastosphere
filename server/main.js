@@ -15,35 +15,31 @@ add this to packages.json to profile with nodetime
 */
 });
 
-isAdmin = function (uid) {
+isAdmin = uid => {
   return uid && Meteor.users.findOne(uid).services.github.id === 103561;
 };
 
-Meteor.publish('packages', function () {
-  if(isAdmin(this.userId))
-    return Packages.find();
+Meteor.publish('packages', function publishpackages() {
+  if (isAdmin(this.userId)) return Packages.find();
 });
 
-Meteor.startup(function () {
+Meteor.startup(() => {
   SyncedCron.start();
 });
 
 Meteor.methods({
-  refresh: function (package) {
-    check(package, String);
-    if(this.userId) {
-      githubUpdate(Packages.findOne({ name: package }));
-      algoliaUpdate();
-    }
+  refresh(p) {
+    check(p, String);
+    if (!this.userId) return;
+    githubUpdate(Packages.findOne({ name: p }));
+    algoliaUpdate();
   },
-  delete: function () {
-    if(isAdmin(this.userId)) {
-      Packages.remove();
-    }
+  delete() {
+    if (!isAdmin(this.userId)) return;
+    Packages.remove();
   },
-  deleteEmptyNames: function () {
-    if(isAdmin(this.userId)) {
-      Packages.remove({name: {$exists: false}});
-    }
+  deleteEmptyNames() {
+    if (!isAdmin(this.userId)) return;
+    Packages.remove({name: {$exists: false}});
   },
 });
