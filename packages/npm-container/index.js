@@ -1,9 +1,9 @@
-  Meteor.npmRequire = function(moduleName) {                                             // 85
-    var module = Npm.require(moduleName);                                                // 86
-    return module;                                                                       // 87
-  };                                                                                     // 88
-                                                                                         // 89
-  Meteor.require = function(moduleName) {                                                // 90
-    console.warn('Meteor.require is deprecated. Please use Meteor.npmRequire instead!'); // 91
-    return Meteor.npmRequire(moduleName);                                                // 92
-  };                                                                                     // 93
+Meteor.npmRequire = function(moduleName) {
+  var module = Npm.require(moduleName);
+  return module;
+};
+
+Meteor.require = function(moduleName) {
+  console.warn('Meteor.require is deprecated. Please use Meteor.npmRequire instead!');
+  return Meteor.npmRequire(moduleName);
+};

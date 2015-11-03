@@ -1,21 +1,30 @@
-  var path = Npm.require('path');                                                        // 97
-  var fs = Npm.require('fs');                                                            // 98
-                                                                                         // 99
-  Package.describe({                                                                     // 100
-    summary: 'Contains all your npm dependencies',                                       // 101
-    version: '1.0.0',                                                                    // 102
-    name: 'npm-container'                                                                // 103
-  });                                                                                    // 104
-                                                                                         // 105
-  var packagesJsonFile = path.resolve('./packages.json');                                // 106
-  try {                                                                                  // 107
-    var fileContent = fs.readFileSync(packagesJsonFile);                                 // 108
-    var packages = JSON.parse(fileContent.toString());                                   // 109
-    Npm.depends(packages);                                                               // 110
-  } catch(ex) {                                                                          // 111
-    console.error('ERROR: packages.json parsing error [ ' + ex.message + ' ]');          // 112
-  }                                                                                      // 113
-                                                                                         // 114
-  Package.onUse(function(api) {                                                          // 115
-    api.add_files(['index.js', '../../packages.json'], 'server');                        // 116
-  });                                                                                    // 117
+var path = Npm.require('path');
+var fs = Npm.require('fs');
+
+Package.describe({
+  summary: 'Contains all your npm dependencies',
+  version: '1.2.0',
+  name: 'npm-container'
+});
+
+var packagesJsonFile = path.resolve('./packages.json');
+try {
+  var fileContent = fs.readFileSync(packagesJsonFile);
+  var packages = JSON.parse(fileContent.toString());
+  Npm.depends(packages);
+} catch (ex) {
+  console.error('ERROR: packages.json parsing error [ ' + ex.message + ' ]');
+}
+
+// Adding the app's packages.json as a used file for this package will get
+// Meteor to watch it and reload this package when it changes
+Package.onUse(function(api) {
+  api.addFiles('index.js', 'server');
+  if (api.addAssets) {
+    api.addAssets('../../packages.json', 'server');
+  } else {
+    api.addFiles('../../packages.json', 'server', {
+      isAsset: true
+    });
+  }
+});
