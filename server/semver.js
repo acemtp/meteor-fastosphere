@@ -1,5 +1,5 @@
 
-var semver = Meteor.npmRequire('semver');
+const semver = Meteor.npmRequire('semver');
 
 // try to extract a basic semver (X.X or X.X.X) from a string
 semverExtract = function (string) {
