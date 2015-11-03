@@ -1,6 +1,6 @@
-Router.route('/', function () {
+Router.route('/', function routehome() {
   this.render('home', {
-    data: function () { return Session.get('content'); }
+    data() { return Session.get('content'); },
   });
 });
 
@@ -9,10 +9,10 @@ hitsPerPageInc = Meteor.isMobile ? 10 : 50;
 Session.setDefault('hitsPerPage', hitsPerPageInc);
 Session.setDefault('q', '');
 
-
 // Setup Algolia
 client = AlgoliaSearch(Meteor.settings.public.algolia_application_id, Meteor.settings.public.algolia_public_id, { dsn: true });
 index = client.initIndex(Meteor.settings.public.production ? 'Packages' : 'PackagesTest');
+
 
 // Do a new Algolia search if the search query changed
 Tracker.autorun(function () {
@@ -24,9 +24,22 @@ Tracker.autorun(function () {
 });
 
 // Init material design ripple effect
-Template.searchResult.onRendered(function () {
+Template.searchResults.onRendered(function () {
   $.material.init();
 });
+
+// Init clipboard with event delegation (only on parent)
+Template.searchResults.onRendered(function () {
+  this.clipboard = new Clipboard('.clippy');
+  this.clipboard.on('success', (e) => {
+    $(e.trigger).attr('data-original-title', 'Copied!').tooltip('show');
+  });
+});
+
+Template.searchResults.onDestroyed(function () {
+  this.clipboard.destroy();
+});
+
 
 // Focus the search bar when it's rendered
 Template.searchBar.onRendered(function () {

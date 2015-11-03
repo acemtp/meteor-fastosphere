@@ -27,3 +27,8 @@ body .well, body .jumbotron {
 i {
   font-size: 100% !important;
 }
+
+.clippy {
+  width: 13px;
+  cursor: pointer;
+}

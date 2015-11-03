@@ -1,4 +1,6 @@
 
+// XXX store the latest date we used so we don't add 2 times the totalAdds if we can the update 2 times the same day
+
 /*
 {"name":"255kb:meteor-status","version":"1.2.0","totalAdds":1,"directAdds":1}
 {"name":"3stack:country-codes","version":"0.1.1","totalAdds":1,"directAdds":1}
