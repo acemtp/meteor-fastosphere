@@ -1,0 +1,44 @@
+<template name="searchResult">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <!-- <a href="https://atmospherejs.com/{{#if authorName}}{{authorName}}{{else}}meteor{{/if}}/{{baseName}}" target="_blank">{{{_highlightResult.name.value}}}</a> -->
+      {{#if gitUrl}}
+        <a href="{{gitUrl}}" target="_blank">{{{_highlightResult.name.value}}}</a>
+        <img class="clippy" src="clippy.svg" alt="Copy to clipboard" data-clipboard-text="meteor add {{name}}" data-toggle="tooltip" data-trigger="hover" title="Copy to clipboard">
+        <a href="{{gitUrl}}" target="_blank"><img class="clippy" src="github.svg" alt="Link to github" data-toggle="tooltip" data-trigger="hover" title="Link to Github"></a>
+      {{else}}
+        {{{_highlightResult.name.value}}}
+      {{/if}}
+      ({{version}} released {{date}})
+      <span class="pull-right">
+        {{#if totalAdds}}
+          {{totalAdds}} <i class="mdi-file-file-download" data-toggle="tooltip" title="" data-original-title="Number of meteor add {{name}}"></i>
+        {{/if}}
+        {{#if starCount}}
+          {{starCount}} <i class="mdi-action-grade" data-toggle="tooltip" title="" data-original-title="Number of github star + atmosphere star"></i>
+        {{/if}}
+<!--
+        {{#if gitUrl}}
+          <a href="{{gitUrl}}" target="_blank">GitHub</a>
+        {{/if}}
+-->
+      </span>
+    </div>
+    <div class="panel-body">
+      {{#if deleted}}
+        <p class="text-danger"><b>THIS PACKAGE WAS DELETED. DON'T USE IT.</b></p>
+      {{/if}}
+      <p>
+        {{{_highlightResult.description.value}}}
+      </p>
+      {{#if errors}}
+        <div class="pull-right text-danger small">
+          <i class="mdi-alert-warning" data-toggle="tooltip" title="" data-original-title="{{errors}}"></i>
+          {{#if currentUser}}
+            (<a class="refresh" href="#">refresh</a>)
+          {{/if}}
+        </div>
+      {{/if}}
+    </div>
+  </div>
+</template>

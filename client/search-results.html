@@ -1,0 +1,18 @@
+<template name="searchResults">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-offset-2 col-sm-8 col-xs-12">
+        <p>{{hitsLength}} of {{this.nbHits}} results found in {{this.processingTimeMS}}ms {{#if currentUser}}({{packageCount}}){{/if}}</p>
+        {{#each this.hits}}
+          {{> searchResult}}
+        {{/each}}
+      </div>
+
+      {{#if hasMore}}
+        <div class="col-lg-12 center-block text-center">
+          <a href="" id="loadMore" class="btn btn-default">Load More</a>
+        </div>
+      {{/if}}
+    </div>
+  </div>
+</template>

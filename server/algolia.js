@@ -1,6 +1,6 @@
 
 var client = new AlgoliaSearch(Meteor.settings.public.algolia_application_id, Meteor.settings.algolia_private_id);
-var index = client.initIndex(Meteor.settings.public.production?'Packages':'PackagesTest');
+var index = client.initIndex(Meteor.settings.public.production ? 'Packages' : 'PackagesTest');
 
 algoliaReset = function () {
   console.log('ALGOLIA: reset index');

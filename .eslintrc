@@ -270,18 +270,9 @@
     "Mousetrap": false,
     "SyncedCron": false,
     "CodeMirror": false,
-    "ServerCall": false,
+    "Clipboard": false,
     "log": false,
     // Custom global
-    "Commands": true,
-    "exec": true,
-    "Apps": true,
-    "Browsers": true,
-    "Collections": true,
-    "CommandStack": true,
-    "Metrics": true,
-    "onServer": true,
-    "discover": true,
-    "_get": true,
+    "Packages": true
   }
 }
