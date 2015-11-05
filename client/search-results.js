@@ -32,6 +32,13 @@ Template.searchResults.helpers({
   },
 });
 
+
+Template.packageSelected.helpers({
+  changelogAnchor() {
+    return Session.get('packageSelected').name.replace(/:/g, '');
+  },
+});
+
 Template.searchResults.events({
   'click #loadMore'() {
     Session.set('hitsPerPage', Session.get('hitsPerPage') + hitsPerPageInc);
@@ -45,4 +52,9 @@ Template.registerHelper('packageSelected', () => {
 
 Template.registerHelper('fromNow', (date) => {
   return moment(date).fromNow();
+});
+
+Template.registerHelper('shortUrl', (url) => {
+  if (!url) return '';
+  return url.substr(url.indexOf('/') + 2);
 });

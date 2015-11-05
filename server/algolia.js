@@ -66,13 +66,14 @@ algoliaUpdate = (force) => {
       starCount: starCount,
       gitStarCount: p.git && p.git.stargazers_count || 0,
       atmoStarCount: p.atmo && p.atmo.starCount || 0,
-      gitUrl: p.meteor.version && p.meteor.version.git || '',
+      gitUrl: p.git && p.git.html_url, // p.meteor.version && p.meteor.version.git || '',
       deleted: p.meteor.version && p.meteor.version.unmigrated || false,
       badgit: p.meteor.version && (p.meteor.version.badgit || p.meteor.version.git === null || p.meteor.version.git === ''),
       downloadCounts: p.meteorstat || {},
       readme: p.readme && p.readme.substr(0, 90000) || '',
       changelogUrl: p.changelogUrl,
       changelog: p.changelog && p.changelog.substr(0, 10000) || '',
+      issues: p.git && p.git.open_issues_count || 0,
     });
   });
   Packages.update({ updateAlgolia: true }, { $unset: { updateAlgolia: '' } }, { multi: true });

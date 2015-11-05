@@ -29,13 +29,16 @@
   <h1 class="pointer js-clippy" data-clipboard-text="meteor add {{packageSelected.name}}"><img class="icon" src="clippy.svg" alt="Copy to clipboard" data-toggle="tooltip" data-trigger="hover" title="Copy to clipboard"> meteor add <b>{{packageSelected.name}}</b></h1>
 
   <div class="row">
-    <div class="col-lg-5">
-      <p><b>{{packageSelected.version}} was released {{fromNow packageSelected.lastUpdated}}</b></p>
-      <p>{{packageSelected.downloadCounts.lastWeekDirectAdds}} downloads in the last week</p>
-      <p>{{packageSelected.downloadCounts.lastMonthDirectAdds}} downloads in the last month</p>
-      <p>{{packageSelected.downloadCounts.directAdds}} downloads</p>
+    <div class="col-lg-6">
+      <p><b>{{packageSelected.version}} was released {{fromNow packageSelected.lastUpdated}} (<a href="#{{changelogAnchor}}_changelog">changelog</a>)</b></p>
+      <p><b><a href="{{packageSelected.gitUrl}}">{{shortUrl packageSelected.gitUrl}}</a></b></p>
+      <p><b><a href="{{packageSelected.gitUrl}}/issues">{{packageSelected.issues}} open issues</a></b> on GitHub</p>
+      <p><b>{{packageSelected.downloadCounts.lastWeekDirectAdds}}</b> downloads in the last week</p>
+      <p><b>{{packageSelected.downloadCounts.lastMonthDirectAdds}}</b> downloads in the last month</p>
+      <p><b>{{packageSelected.downloadCounts.directAdds}}</b> direct downloads and {{packageSelected.downloadCounts.totalAdds}} total downloads</p>
+      <p><b>{{packageSelected.starCount}}</b> stars, {{packageSelected.gitStarCount}} on GitHub and {{packageSelected.atmoStarCount}} on Atmosphere</p>
     </div>
-    <div class="col-lg-7">
+    <div class="col-lg-6">
       {{#if packageSelected.description}}
         <p>{{packageSelected.description}}</p>
       {{/if}}
@@ -50,7 +53,7 @@
     <p>If you are the package author, make sure your package has a <code>git</code> URL specified in its <code>package.js</code>.</p>
   {{/if}}
 
-  <h1><b>Changelog</b></h1>
+  <a id="{{changelogAnchor}}_changelog"></a><h1><b>Changelog</b></h1>
   {{#if packageSelected.changelog}}
     {{#markdown}}{{packageSelected.changelog}}{{/markdown}}
   {{else}}
