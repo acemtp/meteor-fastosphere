@@ -1,28 +1,28 @@
 <template name="searchResult">
-  <div class="panel panel-default">
+  <div class="panel {{#if packageSelectedActive}}panel-primary{{else}}panel-default{{/if}}">
     <div class="panel-heading">
+      <span class="pointer js-package-select">{{{_highlightResult.name.value}}}</span>
       {{#if gitUrl}}
-        <a href="{{gitUrl}}" target="_blank">{{{_highlightResult.name.value}}}</a>
-        <img class="clippy" src="clippy.svg" alt="Copy to clipboard" data-clipboard-text="meteor add {{name}}" data-toggle="tooltip" data-trigger="hover" title="Copy to clipboard">
-        <!-- <a href="{{gitUrl}}" target="_blank"><img class="clippy" src="github.svg" alt="Link to github" data-toggle="tooltip" data-trigger="hover" title="Link to GitHub"></a> -->
-      {{else}}
-        {{{_highlightResult.name.value}}}
+        <img class="icon js-clippy" src="clippy.svg" alt="Copy to clipboard" data-clipboard-text="meteor add {{name}}" data-toggle="tooltip" data-trigger="hover" title="Copy to clipboard">
+        <a href="{{gitUrl}}" target="_blank"><img class="icon" src="github.svg" alt="Link to github" data-toggle="tooltip" data-trigger="hover" title="Link to GitHub"></a>
       {{/if}}
-      ({{version}} released {{date}})
-      <span class="pull-right">
-        {{#if downloadCounts.directAdds}}
-          <span class="pointer" data-toggle="tooltip" data-animation="false" title="" data-original-title="Total number of 'meteor add' / {{downloadCounts.lastMonthDirectAdds}} last month / {{downloadCounts.lastWeekDirectAdds}} last week">
-            {{downloadCounts.directAdds}}<i class="mdi-file-file-download"></i>
+      {{#unless packageSelected}}
+        ({{version}} released {{fromNow lastUpdated}})
+        <span class="pull-right">
+          {{#if downloadCounts.directAdds}}
+            <span class="pointer" data-toggle="tooltip" data-animation="false" title="" data-original-title="Total number of 'meteor add' / {{downloadCounts.lastMonthDirectAdds}} last month / {{downloadCounts.lastWeekDirectAdds}} last week">
+              {{downloadCounts.directAdds}}<i class="mdi-file-file-download"></i>
+            </span>
+          {{/if}}
+          {{#if starCount}}
+            <span class="pointer" data-toggle="tooltip" data-animation="false" title="" data-original-title="{{gitStarCount}} GitHub stars + {{atmoStarCount}} atmosphere stars">
+              {{starCount}} <i class="mdi-action-grade"></i>
           </span>
-        {{/if}}
-        {{#if starCount}}
-          <span class="pointer" data-toggle="tooltip" data-animation="false" title="" data-original-title="{{gitStarCount}} GitHub stars + {{atmoStarCount}} atmosphere stars">
-            {{starCount}} <i class="mdi-action-grade"></i>
+          {{/if}}
         </span>
-        {{/if}}
-      </span>
+      {{/unless}}
     </div>
-    <div class="panel-body">
+    <div class="pointer panel-body js-package-select">
       {{#if deleted}}
         <p class="text-danger"><b><i class="mdi-alert-warning"></i> THIS PACKAGE HAS BEEN DELETED. DO NOT USE IT.</b></p>
       {{/if}}

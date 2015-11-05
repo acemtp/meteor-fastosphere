@@ -70,14 +70,22 @@ algoliaUpdate = (force) => {
       deleted: p.meteor.version && p.meteor.version.unmigrated || false,
       badgit: p.meteor.version && (p.meteor.version.badgit || p.meteor.version.git === null || p.meteor.version.git === ''),
       downloadCounts: p.meteorstat || {},
-      readme: p.readme,
+      readme: p.readme && p.readme.substr(0, 90000) || '',
       changelogUrl: p.changelogUrl,
-      changelog: p.changelog,
+      changelog: p.changelog && p.changelog.substr(0, 10000) || '',
     });
   });
   Packages.update({ updateAlgolia: true }, { $unset: { updateAlgolia: '' } }, { multi: true });
 
   if (array.length) {
+    // let s = 0;
+    // _.each(array, p => {
+    //   const ss = JSON.stringify(p).length;
+    //   s += ss;
+    //   if (ss > 100000) console.log(p.name, ss);
+    // });
+    // console.log('s', s);
+
     index.saveObjects(array, (err, res) => {
       if (err) console.error(Date(), 'ERROR:', err, res);
       else console.log('ALGOLIA: Updated ' + array.length + ' packages', moment().diff(before) / 1000, 'seconds');

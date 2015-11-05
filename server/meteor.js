@@ -230,7 +230,6 @@ Meteor.methods({
       }.bind(null, p._id));
     });
     console.log('METEOR: Launch all readme download', moment().diff(before) / 1000, 'seconds');
-    algoliaUpdate(true);
   },
 });
 

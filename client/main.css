@@ -28,11 +28,19 @@ i {
   font-size: 100% !important;
 }
 
-.clippy {
-  width: 13px;
+.icon {
+  width: 1em;
   cursor: pointer;
 }
 
 .pointer {
   cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+}
+
+.panel:hover {
+  box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }

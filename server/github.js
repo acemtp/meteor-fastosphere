@@ -79,13 +79,17 @@ const githubsUpdate = l => {
     const needUpdate = Packages.find({ git: { $exists: false }, 'meteor.version.badgit': { $exists: false } }, { limit });
     console.log('GITHUB:   never tested git', needUpdate.count());
     needUpdate.forEach(p => { githubUpdate(p); limit--; });
+  } else {
+    console.log('GITHUB:   no more limit, never tested git');
   }
 
   if (limit > 0) {
     // If we have limit left, let's try to update oldest packages
     const oldUpdate = Packages.find({}, { limit, sort: { gitUpdatedAt: 1 } });
     console.log('GITHUB:   old git', oldUpdate.count());
-    oldUpdate.forEach(p => { console.log('dd', limit); githubUpdate(p); limit--; });
+    oldUpdate.forEach(p => { githubUpdate(p); limit--; });
+  } else {
+    console.log('GITHUB:   no more limit, old git');
   }
 
   console.log('GITHUB: Updated', moment().diff(before) / 1000, 'seconds');

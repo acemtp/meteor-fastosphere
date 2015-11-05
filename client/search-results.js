@@ -1,6 +1,7 @@
 
 let hitsPerPageInc = Meteor.isMobile ? 10 : 50;
 Session.setDefault('hitsPerPage', hitsPerPageInc);
+Session.setDefault('packageSelected', undefined);
 
 // Init material design effect (ripple, etc)
 Template.searchResults.onRendered(() => {
@@ -9,7 +10,7 @@ Template.searchResults.onRendered(() => {
 
 // Init clipboard with event delegation (only on parent)
 Template.searchResults.onRendered(function searchResultsonRendered() {
-  this.clipboard = new Clipboard('.clippy');
+  this.clipboard = new Clipboard('.js-clippy');
   this.clipboard.on('success', (e) => {
     $(e.trigger).attr('data-original-title', 'Copied!').tooltip('show');
   });
@@ -36,4 +37,12 @@ Template.searchResults.events({
     Session.set('hitsPerPage', Session.get('hitsPerPage') + hitsPerPageInc);
     return false;
   },
+});
+
+Template.registerHelper('packageSelected', () => {
+  return Session.get('packageSelected');
+});
+
+Template.registerHelper('fromNow', (date) => {
+  return moment(date).fromNow();
 });
