@@ -6,178 +6,63 @@ var moment = require('moment');
 var fs = require('fs');
 var path = require('path');
 var request = require('request');
-var marked = require('marked');
-var terminal = require('marked-terminal');
 var exec = require('child_process').execFile;
 
-var Algolia = require('algolia-search');
+var algoliasearch = require('algoliasearch');
 
 program
-  .version('1.0.5')
-  .option('-v, --verbose', 'More information about changelog');
-
-program
-  .command('search <search>')
-//  .command('*') // bug in commander, with *, options are not parsed
+  .version('1.1.1')
+  .usage('[options] <search ...>')
   .description('Blazing fast Meteor packages search cli powered by Algolia.')
   .option('-g, --github', 'display GitHub url')
-  .option('-n, --nbhits <n>', 'number of results (default: 10)', parseInt)
-  .option('-l, --long', 'list in long format')
-  .action(function () {
-    search(program.args[0], function (err, hits) {
-      if (err) return console.error(err);
-      console.log(table(hits));
-    });
-
-  });
-
-program
-  .command('add <package>')
-  .description('Find the best matched package and install it (like Google feel lucky)')
-  .action(installPackage);
+  .option('-n, --nbhits <n>', 'number of results (default: 10)', parseInt);
 
 program.on('--help', function () {
   console.log('  Examples:');
   console.log('');
-  console.log('    $ fastosphere search acemtp -g   # Display GitHub link (⌘  + click on it to open the url)');
-  console.log('    $ fastosphere search acemtp -l   # Display in long format');
-  console.log('    $ fastosphere search boot -n 20  # Display 20 results');
-  console.log('');
-  console.log('    $ fastosphere add github  # Install accounts-github (best package match)');
-  console.log('');
-  console.log('    $ fastosphere             # Display the changelogs if inside a Meteor app');
-  console.log('');
+  console.log('    $ fastosphere acemtp -g   # Display GitHub link (⌘  + click on it to open the url)');
+  console.log('    $ fastosphere router -n 20  # Display 20 results');
 });
 
 program.parse(process.argv);
 
-//console.log('prog', program);
+// console.log('prog', program, program.nbhits);
 
-if(!program.args.length) {
-  checkPackages();
-}
+var query = program.args.join(' ');
 
-//// functions
+var client = algoliasearch('10L80F1AT7', 'b72cb5333cc8de90e7217eee27c48c63');
 
-function search (package, callback) {
+var index = client.initIndex('Packages');
 
-  var options = program.args[program.args.length - 1];
+var nbhits = program.nbhits || 10;
 
-  var client = new Algolia('10L80F1AT7', 'b72cb5333cc8de90e7217eee27c48c63');
+index.search(query, { hitsPerPage: nbhits }, function (error, content) {
 
-  var index = client.initIndex('Packages');
+  if (error) return console.error(content.message);
 
-  var nbhits = options.nbhits || 10;
+//  console.log(content.hits);
+  if (!content.hits.length) console.log('No Meteor package found for', query);
 
-  index.search(package, function (error, content) {
+  var hits = [];
+  content.hits.forEach(function (h) {
+    var a = [];
+    a.push(h.starCount ? h.starCount + '★' : '');
+    a.push(h.name);
+    a.push(h.version || '');
+    a.push(moment(h.lastUpdated).fromNow());
 
-    if(error) return callback(error, content.message);
-
-  //  console.log(content.hits);
-    if(!content.hits.length) console.log('No Meteor package found for', package);
-
-    var hits = [];
-    content.hits.forEach(function (h) {
-      var a = [];
-
-      a.push(h.starCount ? h.starCount + '★' : '');
-
-      a.push(h.name);
-
-      if(options.long) a.push(h.version || '');
-
-      if(options.long) a.push(moment(h.lastUpdated).fromNow());
-
-      var desc = h.description;
-      var width = options.github ? 50 : 80;
-      if (desc.length > width) {
-        desc = desc.substr(0, width - 3) + '...';
-      }
-      a.push(desc);
-
-      if(options.github) a.push(h.gitUrl || '');
-
-      hits.push(a);
-    });
-
-    callback(null, hits);
-
-  }, { hitsPerPage: nbhits });
-
-}
-
-
-function checkPackages () {
-  // look for a .meteor/version
-
-  if (!fs.existsSync('.meteor')) {
-    console.error('This is not a Meteor Project');
-    program.help();
-  }
-
-  if (!fs.existsSync(path.join('.meteor', 'versions')) && !fs.existsSync(path.join('.meteor', 'release'))) {
-    console.error('This Meteor project is too old');
-    process.exit(0);
-  }
-
-  var versions, release;
-  try {
-    versions = fs.existsSync(path.join('.meteor', 'versions')) && fs.readFileSync(path.join('.meteor', 'versions'), {encoding: 'ascii'});
-    release = fs.existsSync(path.join('.meteor', 'release')) && fs.readFileSync(path.join('.meteor', 'release'), {encoding: 'ascii'});
-  } catch (e) {
-    console.error(e);
-  }
-  // send file to server.
-  console.log('Sending request to server...');
-  request.post({
-    url: 'http://fastosphere.meteor.com/api/changelog',
-//    url: 'http://localhost:3000/api/changelog',
-    json: {
-      versions: release + versions,
-      verbose: program.verbose
+    var desc = h.description;
+    var width = program.github ? 50 : 100;
+    if (desc.length > width) {
+      desc = desc.substr(0, width - 3) + '...';
     }
-  }, function(err, httpResponse, body){
+    a.push(desc);
 
-    if(err) {
-      return console.error('error:', err);
-    }
+    if (program.github) a.push(h.gitUrl || '');
 
-    if(typeof body !== 'object') {
-      return console.error('server returns a bad body', typeof body, body);
-    }
-
-    marked.setOptions({
-      // Define custom renderer
-      renderer: new terminal()
-    });
-    // avoid marked to crash
-    body.links = {};
-
-    console.log(marked.parser(body));
-    process.exit(0);
+    hits.push(a);
   });
-}
 
-function installPackage (package) {
-
-  var client = new Algolia('10L80F1AT7', 'b72cb5333cc8de90e7217eee27c48c63');
-
-  var index = client.initIndex('Packages');
-
-  index.search(package, function (error, content) {
-    if (error) return console.error(error, content.message);
-
-    var packageName = content.hits[0].name;
-
-    console.log('Installing package "' + packageName + '"...');
-
-    exec('meteor', ['add', packageName], function (error, stdout, stderr) {
-      console.log(stdout);
-      if (error) {
-        console.error(error);
-        console.error(stderr);
-      }
-    });
-
-  }, {hitsPerPage: 1});
-}
+  console.log(table(hits));
+  process.exit();
+});
