@@ -11,7 +11,7 @@ var exec = require('child_process').execFile;
 var algoliasearch = require('algoliasearch');
 
 program
-  .version('1.1.1')
+  .version('1.1.5')
   .usage('[options] <search ...>')
   .description('Blazing fast Meteor packages search cli powered by Algolia.')
   .option('-g, --github', 'display GitHub url')
