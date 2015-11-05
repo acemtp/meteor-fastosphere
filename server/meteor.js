@@ -69,6 +69,26 @@ const meteorResetSyncTokens = () => {
   meteorUpdate();
 };
 
+const meteorReadmeGet = (v) => {
+  if (!v || !v.readme || !v.readme.url) {
+    console.log('no readme', v);
+    return '';
+  }
+
+  try {
+    const res = HTTP.get(v.readme.url);
+    // console.log('****** res', res);
+    if (res.statusCode === 200) {
+      console.log(v.packageName, 'readme', res.content.length);
+      return res.content;
+    }
+    console.error('  Error getting meteor readme', v.packageName, res);
+  } catch (e) {
+    console.error('  Error getting meteor readme', v.packageName, e, e.response);
+  }
+  return '';
+};
+
 const packageRequest = (cb) => {
   remote.call('syncNewPackageData', SyncTokens.findOne() ? _.omit(SyncTokens.findOne(), '_id') : { format: '1.1' }, {/* shortPagesForTest: true */}, (err, res) => {
     // console.log('  Page', count++);
@@ -89,7 +109,7 @@ console.log('rev', res.collections.releaseVersions);
     if (res.resetData) {
       console.log('  Meteor asks me to reset data');
 //      Packages.update({}, { $unset: { meteor: '' } }, { multi: true });
-///      MeteorLogs.remove();
+//      MeteorLogs.remove();
 //      algoliaReset();
     } else {
 //      console.log('no reset data');
@@ -99,16 +119,16 @@ console.log('rev', res.collections.releaseVersions);
 //      console.log('  package', p._id, p.name);
       const cp = Packages.findOne({ 'name': p.name });
       if (cp) {
-///        console.log('Update package', p.name);
+//        console.log('Update package', p.name);
         try {
-          Packages.update(cp._id, { $set: { updateAlgolia: true, name: p.name, 'meteor.package': p } });
+          Packages.update(cp._id, { $set: { updateAlgolia: true, name: p.name, meteorUpdatedAt: new Date(), 'meteor.package': p } });
         } catch (e) {
           console.error('ERROR update package', cp, p, e);
         }
       } else {
-///        console.log('New package', p.name);
+//        console.log('New package', p.name);
         try {
-          Packages.insert({ updateAlgolia: true, name: p.name, meteor: { package: p } });
+          Packages.insert({ updateAlgolia: true, name: p.name, meteor: { meteorUpdatedAt: new Date(), package: p } });
         } catch (e) {
           console.error('ERROR insert package', p, e);
         }
@@ -116,7 +136,7 @@ console.log('rev', res.collections.releaseVersions);
     });
 
     _.each(res.collections.versions, v => {
-///      console.log('New version', v.packageName, v.version);
+//      console.log('New version', v.packageName, v.version);
 
       const cp = Packages.findOne({ 'name': v.packageName });
 
@@ -124,22 +144,23 @@ console.log('rev', res.collections.releaseVersions);
       delete v.dependencies;
       if (cp) {
         if (!cp.meteor || !cp.meteor.version || semverCompare(v.version, cp.meteor.version.version) >= 0) {
-///          console.log('  Update version', v.packageName, (cp.meteor && cp.meteor.version) ? cp.meteor.version.version : '0.0.0', '<', v.version);
+//          console.log('  Update version', v.packageName, (cp.meteor && cp.meteor.version) ? cp.meteor.version.version : '0.0.0', '<', v.version);
           try {
-            if (cp.meteor && cp.meteor.version && cp.meteor.version.git !== v.git)
+            if (cp.meteor && cp.meteor.version && cp.meteor.version.git !== v.git) {
               Packages.update(cp._id, { $set: { updateGit: true } });
-
-            Packages.update(cp._id, { $set: { updateAlgolia: true, name: v.packageName, 'meteor.version': v } });
+            }
+            const readme = meteorReadmeGet(v);
+            Packages.update(cp._id, { $set: { readme, updateAlgolia: true, name: v.packageName, meteorUpdatedAt: new Date(), 'meteor.version': v } });
           } catch (e) {
             console.error('ERROR update version', cp, v, e);
           }
         } else {
-///          console.log('  Ignore version ', v.packageName, (cp.meteor && cp.meteor.version) ? cp.meteor.version.version : '0.0.0', '>', v.version);
+//          console.log('  Ignore version ', v.packageName, (cp.meteor && cp.meteor.version) ? cp.meteor.version.version : '0.0.0', '>', v.version);
         }
       } else {
 //        console.log('  No package for this version', v);
         try {
-          Packages.insert({ updateAlgolia: true, name: v.packageName, meteor: { version: v } });
+          Packages.insert({ updateAlgolia: true, name: v.packageName, meteorUpdatedAt: new Date(), meteor: { version: v } });
         } catch (e) {
           console.error('ERROR insert version', v, e);
         }
@@ -161,14 +182,15 @@ let meteorUpdateInProgress = false;
 const meteorUpdate = () => {
   if (meteorUpdateInProgress) return console.log('METEOR: Update already in progress');
   meteorUpdateInProgress = true;
+  // const before = moment();
 
   // console.log('METEOR: Updating packages from Meteor...');
   count = 1;
   remote = remote || DDP.connect('http://packages.meteor.com');
   packageRequest(() => {
-    // console.log('METEOR: Updated');
-    algoliaUpdate(false);
+    // console.log('METEOR: Updated', moment().diff(before) / 1000, 'seconds');
     meteorUpdateInProgress = false;
+    algoliaUpdate(false);
   });
 };
 
@@ -196,19 +218,28 @@ Meteor.methods({
     if (!isAdmin(this.userId)) return;
     meteorCreateMeteorPackage();
   },
+  meteorUpdateReadme() {
+    if (!isAdmin(this.userId)) return;
+    const before = moment();
+    console.log('METEOR: Getting all readme...');
+    Packages.find({ 'meteor.version.readme.url': { $exists: true } }).forEach(p => {
+      HTTP.get(p.meteor.version.readme.url, (pid, err, res) => {
+        console.log('res', pid, err, res.statusCode, res.content.length);
+        if (!err && res.statusCode === 200) Packages.update(pid, { $set: { readme: res.content } });
+        else console.error('METEOR: Cannot get readme', pid, err);
+      }.bind(null, p._id));
+    });
+    console.log('METEOR: Launch all readme download', moment().diff(before) / 1000, 'seconds');
+    algoliaUpdate(true);
+  },
 });
 
 
 SyncedCron.add({
   name: 'METEOR: Update',
-  schedule(parser) {
-    return parser.text('every 10 seconds');
-  },
-  job() {
-    const before = moment();
-    meteorUpdate();
-    return 'METEOR: Took' + moment().diff(before) / 1000 + ' seconds';
-  },
+  schedule(parser) { return parser.text('every 10 seconds'); },
+  job() { meteorUpdate(); },
 });
 
 // meteorUpdate();
+// meteorReadmeGet(Packages.findOne({ name: 'aldeed:collection2' }).meteor.version);

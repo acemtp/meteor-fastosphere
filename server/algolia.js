@@ -7,8 +7,13 @@ algoliaReset = () => {
   index.clearIndex((error, content) => { console.log('ALGOLIA: reset index result', error, content); });
 };
 
+let algoliaUpdateInProgress = false;
+
 algoliaUpdate = (force) => {
-  // console.log('ALGOLIA: Updating index...');
+  if (algoliaUpdateInProgress) return console.log('ALGOLIA: Update already in progress');
+  algoliaUpdateInProgress = true;
+  const before = moment();
+
   let array = [];
   let selector = { meteor: { $exists: true } };
 
@@ -63,25 +68,29 @@ algoliaUpdate = (force) => {
       atmoStarCount: p.atmo && p.atmo.starCount || 0,
       gitUrl: p.meteor.version && p.meteor.version.git || '',
       deleted: p.meteor.version && p.meteor.version.unmigrated || false,
-      changelogUrl: p.changelogUrl,
       badgit: p.meteor.version && (p.meteor.version.badgit || p.meteor.version.git === null || p.meteor.version.git === ''),
       downloadCounts: p.meteorstat || {},
+      readme: p.readme,
+      changelogUrl: p.changelogUrl,
+      changelog: p.changelog,
     });
   });
   Packages.update({ updateAlgolia: true }, { $unset: { updateAlgolia: '' } }, { multi: true });
 
   if (array.length) {
-    index.saveObjects(array, (error, content) => {
-      if (error) console.error(Date(), 'ERROR:', content.message);
-      else console.log('Updated ' + array.length + ' packages to Algolia');
+    index.saveObjects(array, (err, res) => {
+      if (err) console.error(Date(), 'ERROR:', err, res);
+      else console.log('ALGOLIA: Updated ' + array.length + ' packages', moment().diff(before) / 1000, 'seconds');
+      algoliaUpdateInProgress = false;
     });
   }
-  // console.log('ALGOLIA: Updated ' + array.length + ' packages.');
+  algoliaUpdateInProgress = false;
 };
 
 
 Meteor.methods({
   algoliaUpdate() {
-    if (isAdmin(this.userId)) algoliaUpdate(true);
+    if (!isAdmin(this.userId)) return;
+    algoliaUpdate(true);
   },
 });

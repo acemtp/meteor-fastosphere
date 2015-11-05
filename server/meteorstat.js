@@ -10,6 +10,7 @@ let meteorstatUpdateInProgress = false;
 const meteorstatUpdate = () => {
   if (meteorstatUpdateInProgress) return console.log('METEORSTAT: Update already in progress');
   meteorstatUpdateInProgress = true;
+  const before = moment();
 
   console.log('METEORSTAT: Updating packages with Meteor stats...');
 
@@ -52,16 +53,16 @@ const meteorstatUpdate = () => {
 //    }
   });
 
-  console.log('METEORSTAT: Updated');
-  algoliaUpdate(false);
+  console.log('METEORSTAT: Updated', moment().diff(before) / 1000, 'seconds');
   meteorstatUpdateInProgress = false;
+  algoliaUpdate(false);
 };
 
 // Get all files from Meteor stats since the beginning but skip those we already have in db
 const meteorstatGet = () => {
   let date = moment('2014-08-20');
 
-  console.log('Get all stat files from Meteor');
+  console.log('METEORSTATGET: Updating packages with Meteor stats get...');
 
   while (true) {
     if (!MeteorStats.findOne({ date: date.toDate() })) {
@@ -96,31 +97,19 @@ const meteorstatGet = () => {
     date = date.add(1, 'days');
     if (moment().diff(date) < 0) break;
   }
-  console.log('Sent all http');
+  console.log('METEORSTATGET: Updated');
 };
 
 SyncedCron.add({
   name: 'METEORSTAT: Get',
-  schedule(parser) {
-    return parser.text('at 1:00 am');
-  },
-  job() {
-    const before = moment();
-    meteorstatGet();
-    return 'METEORSTAT: Took' + moment().diff(before) / 1000 + ' seconds';
-  },
+  schedule(parser) { return parser.text('at 1:00 am'); },
+  job() { meteorstatGet(); },
 });
 
 SyncedCron.add({
   name: 'METEORSTAT: Update',
-  schedule(parser) {
-    return parser.text('at 2:00 am');
-  },
-  job() {
-    const before = moment();
-    meteorstatUpdate();
-    return 'METEORSTAT: Took' + moment().diff(before) / 1000 + ' seconds';
-  },
+  schedule(parser) { return parser.text('at 2:00 am'); },
+  job() { meteorstatUpdate(); },
 });
 
 Meteor.methods({

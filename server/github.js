@@ -29,10 +29,10 @@ githubUpdate = p => {
 
     // gitRemaining = +res.headers['x-ratelimit-remaining'];
 
-    Packages.update(p._id, { $set: { updateAlgolia: true, git: res.data } });
+    Packages.update(p._id, { $set: { updateAlgolia: true, gitUpdatedAt: new Date(), git: res.data } });
 
     // Get the repo filenames
-    res = HTTP.get('https://api.github.com/repos/' + m[1] + '/' + m[2] + '/contents' + '?client_id=' + Meteor.settings.github_client_id + '&client_secret='+Meteor.settings.github_client_secret, { headers: { Accept: 'application/json', 'User-Agent': userAgent } });
+    res = HTTP.get('https://api.github.com/repos/' + m[1] + '/' + m[2] + '/contents' + '?client_id=' + Meteor.settings.github_client_id + '&client_secret=' + Meteor.settings.github_client_secret, { headers: { Accept: 'application/json', 'User-Agent': userAgent } });
     // gitRemaining = +res.headers['x-ratelimit-remaining'];
 
     res.data.forEach(f => {
@@ -41,7 +41,7 @@ githubUpdate = p => {
 
         // Get the change log
         res = HTTP.get(f.download_url);
-        Packages.update(p._id, { $set: { updateAlgolia: true, changelogUrl: f.download_url, changelog: res.content } });
+        Packages.update(p._id, { $set: { updateAlgolia: true, changelogUpdatedAt: new Date(), changelogUrl: f.download_url, changelog: res.content } });
       }
     });
   } catch (e) {
@@ -60,25 +60,36 @@ githubUpdate = p => {
 
 let githubsUpdateInProgress = false;
 
-const githubsUpdate = limit => {
-  console.log('GITHUB: Updating...');
+const githubsUpdate = l => {
   if (githubsUpdateInProgress) return console.log('GITHUB: Update already in progress');
-
   githubsUpdateInProgress = true;
+  const before = moment();
+
+  let limit = l || 100;
+  console.log('GITHUB: Updating ' + limit + '...');
 
   // Update those who are marked as need to update
-  Packages.find({ updateGit: true }).forEach(p => { githubUpdate(p); });
+  const markAsNeedUpdate = Packages.find({ updateGit: true });
+  console.log('GITHUB:   marked as needUpdate', markAsNeedUpdate.count());
+  markAsNeedUpdate.forEach(p => { githubUpdate(p); limit--; });
   Packages.update({ updateGit: true }, { $unset: { updateGit: '' } }, { multi: true });
 
-  // Update those who we never tried
-  const needUpdate = Packages.find({ git: { $exists: false }, 'meteor.version.badgit': { $exists: false } }, { limit: limit || 100 });
-  console.log(' needUpdate', needUpdate.count());
-  needUpdate.forEach(p => {
-    githubUpdate(p);
-  });
+  if (limit > 0) {
+    // Update those who we never tried
+    const needUpdate = Packages.find({ git: { $exists: false }, 'meteor.version.badgit': { $exists: false } }, { limit });
+    console.log('GITHUB:   never tested git', needUpdate.count());
+    needUpdate.forEach(p => { githubUpdate(p); limit--; });
+  }
 
+  if (limit > 0) {
+    // If we have limit left, let's try to update oldest packages
+    const oldUpdate = Packages.find({}, { limit, sort: { gitUpdatedAt: 1 } });
+    console.log('GITHUB:   old git', oldUpdate.count());
+    oldUpdate.forEach(p => { console.log('dd', limit); githubUpdate(p); limit--; });
+  }
+
+  console.log('GITHUB: Updated', moment().diff(before) / 1000, 'seconds');
   githubsUpdateInProgress = false;
-  console.log('GITHUB: Updated');
 };
 
 Meteor.methods({
@@ -98,14 +109,8 @@ Meteor.methods({
 
 SyncedCron.add({
   name: 'GIT: Update',
-  schedule(parser) {
-    return parser.text('every 10 minutes');
-  },
-  job() {
-    const before = moment();
-    githubsUpdate();
-    return 'GIT: Took' + moment().diff(before) / 1000 + ' seconds';
-  },
+  schedule(parser) { return parser.text('every 10 minutes'); },
+  job() { githubsUpdate(); },
 });
 
-// githubsUpdate();
+// githubsUpdate(10);

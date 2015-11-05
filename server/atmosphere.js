@@ -4,6 +4,7 @@ let atmosphereUpdateInProgress = false;
 const atmosphereUpdate = () => {
   if (atmosphereUpdateInProgress) return console.log('ATMO: Update already in progress');
   atmosphereUpdateInProgress = true;
+  const before = moment();
 
   console.log('ATMO: Updating packages...');
 
@@ -20,7 +21,7 @@ const atmosphereUpdate = () => {
       _.each(res.packages, p => {
         const cp = Packages.findOne({ name: p.name });
         if (cp) {
-          Packages.update(cp._id, { $set: { updateAlgolia: true, atmo: p } });
+          Packages.update(cp._id, { $set: { updateAlgolia: true, atmoUpdatedAt: new Date(), atmo: p } });
         } else {
           console.error('ATMO:  Package is in Atmosphere but not in my collection ignore it', p.name);
         }
@@ -35,10 +36,11 @@ const atmosphereUpdate = () => {
   }
 
   cnx.disconnect();
-  console.log('ATMO: Updated');
+
+  console.log('ATMO: Updated', moment().diff(before) / 1000, 'seconds');
+  atmosphereUpdateInProgress = false;
 
   algoliaUpdate(false);
-  atmosphereUpdateInProgress = false;
 
 /* old way to get atmosphere packages info, deprecated
   var cnx = DDP.connect('https://atmospherejs.com');
@@ -76,14 +78,8 @@ Meteor.methods({
 
 SyncedCron.add({
   name: 'ATMO: Update',
-  schedule(parser) {
-    return parser.text('every 12 hours');
-  },
-  job() {
-    const before = moment();
-    atmosphereUpdate();
-    return 'ATMO: Took' + moment().diff(before) / 1000 + ' seconds';
-  },
+  schedule(parser) { return parser.text('every 12 hours'); },
+  job() { atmosphereUpdate(); },
 });
 
 // atmosphereUpdate();
