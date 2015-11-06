@@ -46,6 +46,7 @@ index.search(query, { hitsPerPage: nbhits }, function (error, content) {
   var hits = [];
   content.hits.forEach(function (h) {
     var a = [];
+    a.push(h.downloadCounts.totalAdds ? h.downloadCounts.totalAdds + '⬇' : '');
     a.push(h.starCount ? h.starCount + '★' : '');
     a.push(h.name);
     a.push(h.version || '');
