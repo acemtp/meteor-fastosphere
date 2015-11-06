@@ -28,7 +28,7 @@ If you want to compare, do this test:
 
     $ meteor search moment
     $ npm -g install fastosphere
-    $ fastosphere search moment -l
+    $ fastosphere moment
 
 ![3__acemtp_macbook-pro-de-vianney____m_meteor-fastosphere-changelog-test__zsh_](https://cloud.githubusercontent.com/assets/103561/5565008/f89a4d1c-8ede-11e4-8baf-1ff3d667e907.png)
 
@@ -39,6 +39,7 @@ You can also test:
     $ fastosphere moomment     # dyslexic
     $ fastosphere moment -n 2  # display only 2 results
     $ fastosphere moment -g    # GitHub Urls (⌘ + click on the url to open the url)
+    $ fastosphere moment -l    # display more information (last month and last week download, GitHub and Atmosphere stars)
 
 ## Fork this project
 

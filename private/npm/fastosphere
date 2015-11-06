@@ -11,13 +11,14 @@ var exec = require('child_process').execFile;
 var algoliasearch = require('algoliasearch');
 
 program
-  .version('1.1.5')
+  .version('1.1.6')
   .usage('[options] <search ...>')
   .description('Blazing fast Meteor packages search cli powered by Algolia.')
   .option('-g, --github', 'display GitHub url')
+  .option('-l, --long', 'display long format')
   .option('-n, --nbhits <n>', 'number of results (default: 10)', parseInt);
 
-program.on('--help', function () {
+program.on('--help', function help() {
   console.log('  Examples:');
   console.log('');
   console.log('    $ fastosphere acemtp -g   # Display GitHub link (⌘  + click on it to open the url)');
@@ -44,9 +45,15 @@ index.search(query, { hitsPerPage: nbhits }, function (error, content) {
   if (!content.hits.length) console.log('No Meteor package found for', query);
 
   var hits = [];
-  content.hits.forEach(function (h) {
+  content.hits.forEach(function fe(h) {
     var a = [];
-    a.push(h.starCount ? h.starCount + '★' : '');
+    if (program.long) {
+      if (h.downloadCounts) a.push((h.downloadCounts.directAdds || 0) + '/' + (h.downloadCounts.lastMonthDirectAdds || 0) + '/' + (h.downloadCounts.lastWeekDirectAdds || 0) + '⬇');
+      a.push(h.starCount ? h.starCount + '/' + h.gitStarCount + '/' + h.atmoStarCount + '★' : '');
+    } else {
+      a.push((h.downloadCounts.directAdds || 0) + '⬇');
+      a.push((h.starCount || 0) + '★');
+    }
     a.push(h.name);
     a.push(h.version || '');
     a.push(moment(h.lastUpdated).fromNow());

@@ -1,6 +1,6 @@
 {
   "name": "fastosphere",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "fast Meteor packages search cli powered by Algolia.",
   "dependencies": {
     "algoliasearch": "3.9.x",

@@ -30,7 +30,7 @@
 
   <div class="row">
     <div class="col-lg-6">
-      <p><b>{{packageSelected.version}} was released {{fromNow packageSelected.lastUpdated}} (<a href="#{{changelogAnchor}}_changelog">changelog</a>)</b></p>
+      <p><b>{{packageSelected.version}} was released {{fromNow packageSelected.lastUpdated}} {{#if packageSelected.changelog}}(<a href="#{{changelogAnchor}}_changelog">changelog</a>){{/if}}</b></p>
       <p><b><a href="{{packageSelected.gitUrl}}">{{shortUrl packageSelected.gitUrl}}</a></b></p>
       <p><b><a href="{{packageSelected.gitUrl}}/issues">{{packageSelected.issues}} open issues</a></b> on GitHub</p>
       <p><b>{{packageSelected.downloadCounts.lastWeekDirectAdds}}</b> downloads in the last week</p>
@@ -58,6 +58,7 @@
     {{#markdown}}{{packageSelected.changelog}}{{/markdown}}
   {{else}}
     <p>Sadly, the author didn't create a changelog. Guess by yourself what changed.</p>
+    <p>If you are the package author, make sure your package has a file <code>HISTORY.md</code> or <code>CHANGELOG.md</code> (case insensitive) in the root of your repository.</p>
   {{/if}}
 
 </template>
