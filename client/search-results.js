@@ -1,5 +1,5 @@
 
-let hitsPerPageInc = Meteor.isMobile ? 10 : 50;
+const hitsPerPageInc = Meteor.isMobile ? 10 : 50;
 Session.setDefault('hitsPerPage', hitsPerPageInc);
 Session.setDefault('packageSelected', undefined);
 
@@ -30,6 +30,9 @@ Template.searchResults.helpers({
     const c = Session.get('content');
     return c && c.hitsPerPage < c.nbHits;
   },
+  content() {
+    return Session.get('content');
+  }
 });
 
 

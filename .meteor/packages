@@ -6,7 +6,6 @@
 mizzao:bootstrap-3
 http
 chuangbo:marked
-iron:router
 meteorhacks:npm
 
 
@@ -39,3 +38,6 @@ zenorocha:clipboard
 ecmascript
 acemtp:logentries
 okgrow:router-autoscroll
+kadira:flow-router
+kadira:blaze-layout
+meteorhacks:picker

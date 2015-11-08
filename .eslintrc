@@ -262,7 +262,9 @@
     "_": false,               // Underscore.js
     "$": false,               // jQuery
     // install Meteor packages
-    "Router": false,          // iron-router
+    "Picker": false, // server side routing
+    "FlowRouter": false,          // flow-router
+    "BlazeLayout": false,
     "SyncedCron": false,
     "Clipboard": false,
     "AlgoliaSearch": false,
@@ -276,6 +278,7 @@
     "semverExtract": true,
     "semverCompare": true,
     "debug": true,
-    "MeteorStats": true
+    "MeteorStats": true,
+    "ChangelogsCalls": true,
   }
 }
