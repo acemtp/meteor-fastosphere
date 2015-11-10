@@ -1,4 +1,4 @@
-FlowRouter.route('/', {
+FlowRouter.route('/:packageSelected?', {
   action() {
     BlazeLayout.render('home');
   },

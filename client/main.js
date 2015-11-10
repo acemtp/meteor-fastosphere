@@ -4,7 +4,7 @@ const index = client.initIndex(Meteor.settings.public.production ? 'Packages' : 
 
 // Do a new Algolia search if the search query changed
 Tracker.autorun(() => {
-  const q = Session.get('q');
+  const q = FlowRouter.getQueryParam('q');
   index.search(q, { hitsPerPage: Session.get('hitsPerPage') }, (error, content) => {
     if (error) return console.error('Error during Algolia search: ', error);
     Session.set('content', content);

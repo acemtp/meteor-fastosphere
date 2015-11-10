@@ -1,7 +1,6 @@
 
 const hitsPerPageInc = Meteor.isMobile ? 10 : 50;
 Session.setDefault('hitsPerPage', hitsPerPageInc);
-Session.setDefault('packageSelected', undefined);
 
 // Init material design effect (ripple, etc)
 Template.searchResults.onRendered(() => {
@@ -32,13 +31,13 @@ Template.searchResults.helpers({
   },
   content() {
     return Session.get('content');
-  }
+  },
 });
 
 
 Template.packageSelected.helpers({
   changelogAnchor() {
-    return Session.get('packageSelected').name.replace(/:/g, '');
+    return FlowRouter.getParam('packageSelected').replace(/:/g, '');
   },
 });
 
@@ -50,7 +49,10 @@ Template.searchResults.events({
 });
 
 Template.registerHelper('packageSelected', () => {
-  return Session.get('packageSelected');
+  const content = Session.get('content');
+  const name = FlowRouter.getParam('packageSelected');
+
+  return name && content && content.hits && _.findWhere(content.hits, { name });
 });
 
 Template.registerHelper('fromNow', (date) => {

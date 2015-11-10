@@ -11,8 +11,8 @@ Template.searchResult.helpers({
     return err.length > 0 ? err.join(' ') : undefined;
   },
   packageSelectedActive() {
-    const ps = Session.get('packageSelected');
-    return ps && ps.name === this.name;
+    const name = FlowRouter.getParam('packageSelected');
+    return name === this.name;
   },
 });
 
@@ -22,7 +22,7 @@ Template.searchResult.events({
     return false;
   },
   'click .js-package-select'() {
-    const ps = Session.get('packageSelected');
-    Session.set('packageSelected', ps && ps.name === this.name ? undefined : this);
+    const name = FlowRouter.getParam('packageSelected');
+    FlowRouter.setParams({ packageSelected: name === this.name ? undefined : this.name });
   },
 });
