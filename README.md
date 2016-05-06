@@ -1,6 +1,6 @@
 # Fastosphere
 
-**Fastosphere** is a [website](http://fastosphere.meteor.com) and a [CLI](http://en.wikipedia.org/wiki/Command-line_interface) to search Meteor packages really quickly thanks to [Algolia](http://algolia.com) search engine.
+**Fastosphere** is a [website](http://fastosphere.meteorapp.com) and a [CLI](http://en.wikipedia.org/wiki/Command-line_interface) to search Meteor packages really quickly thanks to [Algolia](http://algolia.com) search engine.
 
 ## Website
 
