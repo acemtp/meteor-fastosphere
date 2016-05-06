@@ -4,7 +4,7 @@
 
 ## Website
 
-http://fastosphere.meteor.com provides you a very quick and easy way to find Meteor packages. You'll have basic information like package name, description, latest version, latest release date, GitHub Url, number of GitHub stars.
+http://fastosphere.meteorapp.com provides you a very quick and easy way to find Meteor packages. You'll have basic information like package name, description, latest version, latest release date, GitHub Url, number of GitHub stars.
 
 It's an alternative to [Atmosphere](https://atmospherejs.com). **The main advantages are it's freesoftware and a lot faster than Atmosphere.**
 
