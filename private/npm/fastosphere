@@ -39,7 +39,10 @@ var nbhits = program.nbhits || 10;
 
 index.search(query, { hitsPerPage: nbhits }, function (error, content) {
 
-  if (error) return console.error(content.message);
+  if (error) {
+    console.error("Error :", error.message);
+    process.exit(1);
+  }
 
 //  console.log(content.hits);
   if (!content.hits.length) console.log('No Meteor package found for', query);
